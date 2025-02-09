@@ -1,7 +1,16 @@
 export type Todos = {
-  id: number;
+  id: string;
   title: string;
   date: string;
   status: string;
   category: string;
+};
+
+export type TaskStatus = "to-do" | "in-progress" | "completed";
+
+export type TodoTableData = {
+  id: TaskStatus;
+  title: string;
+  bgColor: string;
+  data: Todos[];
 };
