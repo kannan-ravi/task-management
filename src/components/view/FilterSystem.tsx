@@ -1,7 +1,12 @@
 import { FaThList } from "react-icons/fa";
 import { FaMagnifyingGlass } from "react-icons/fa6";
 import { MdOutlineAnalytics } from "react-icons/md";
-function FilterSystem() {
+
+type FilterSystemProps = {
+  view: string;
+  setView: React.Dispatch<React.SetStateAction<string>>;
+};
+function FilterSystem({ view, setView }: FilterSystemProps) {
   const filterDropdown: string[] = ["All", "Work", "Personal"];
   return (
     <div className="container px-4 mx-auto flex flex-col gap-6 mt-4 lg:mt-8 xl:mt-12 lg:grid lg:grid-cols-[4fr_2fr_1fr] xl:grid-cols-[4fr_1.6fr_1fr] 2xl:grid-cols-[4fr_1.2fr_1fr]">
@@ -12,11 +17,21 @@ function FilterSystem() {
       </div>
       <div className="flex flex-col gap-4 lg:order-1">
         <div className="hidden lg:flex lg:gap-4">
-          <button className="lg:flex lg:items-center lg:gap-2 lg:border-b-2 lg:border-gray-500 lg:pb-1">
+          <button
+            className={`lg:flex lg:items-center lg:gap-2 lg:border-b-2 lg:pb-1 ${
+              view === "list" ? "lg:border-gray-500" : "lg:border-transparent"
+            }`}
+            onClick={() => setView("list")}
+          >
             <FaThList />
             List
           </button>
-          <button className="lg:flex lg:items-center lg:gap-2 lg:border-b-2 lg:border-transparent lg:pb-1">
+          <button
+            className={`lg:flex lg:items-center lg:gap-2 lg:border-b-2 lg:pb-1 ${
+              view === "board" ? "lg:border-gray-500" : "lg:border-transparent"
+            }`}
+            onClick={() => setView("board")}
+          >
             <MdOutlineAnalytics />
             Board
           </button>

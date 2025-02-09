@@ -1,6 +1,6 @@
 import { IoIosArrowUp } from "react-icons/io";
 import ListViewTodo from "./ListViewTodo";
-import type { Todos } from "../../utils/types";
+import type { Todos } from "../../../utils/types";
 
 type TodoTableprops = {
   headerColor?: string;

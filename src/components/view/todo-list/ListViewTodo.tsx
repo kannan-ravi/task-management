@@ -1,12 +1,13 @@
 import { FaCheckCircle, FaTrashAlt } from "react-icons/fa";
-import Checkbox from "../ui/Checkbox";
+import Checkbox from "../../ui/Checkbox";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { FaPencil } from "react-icons/fa6";
 import { useEffect, useState } from "react";
-import type { Todos } from "../../utils/types";
+import type { Todos } from "../../../utils/types";
+import { MdDragIndicator } from "react-icons/md";
 
 type ListViewTodoProps = {
-  todo: Todos; // ✅ Accept single todo object
+  todo: Todos;
 };
 
 function ListViewTodo({ todo }: ListViewTodoProps) {
@@ -29,16 +30,20 @@ function ListViewTodo({ todo }: ListViewTodoProps) {
   }, [moreOptions, statusDropdown]);
 
   return (
-    <div className="lg:grid lg:grid-cols-[2fr_1fr_1fr_1fr_1fr] lg:place-items-center bg-[#F1F1F1]">
+    <div className="lg:grid lg:grid-cols-[2fr_1fr_1fr_1fr_1fr] bg-[#F1F1F1]">
       <div className="flex items-center gap-4 py-3 px-4 border-b border-[#0000001A] last:rounded-b-xl">
         <Checkbox />
         <FaCheckCircle className="text-[#A7A7A7] text-lg" />
+        <MdDragIndicator className="text-[#A7A7A7] text-lg hidden lg:block" />
         <p>{todo.title}</p>
       </div>
-      <p className="hidden lg:text-sm lg:block">{todo.date}</p>
-      <div className="hidden lg:block relative" id="status-dropdown">
+      <p className="hidden lg:text-sm lg:block lg:self-center">{todo.date}</p>
+      <div
+        className="hidden lg:flex lg:items-center lg:relative"
+        id="status-dropdown"
+      >
         <p
-          className="lg:bg-[#DDDADD] lg:px-3 lg:py-1 lg:rounded-sm lg:text-sm"
+          className="lg:bg-[#DDDADD] lg:px-3 lg:py-1 lg:rounded-sm lg:text-sm lg:self-center lg:w-fit cursor-pointer"
           onClick={() => setStatusDropdown(!statusDropdown)}
         >
           {todo.status}
@@ -57,12 +62,14 @@ function ListViewTodo({ todo }: ListViewTodoProps) {
           </div>
         )}
       </div>
-      <p className="hidden lg:text-sm lg:block">{todo.category}</p>
+      <p className="hidden lg:text-sm lg:block lg:self-center">
+        {todo.category}
+      </p>
       <div
-        className="hidden lg:text-sm lg:block lg:justify-self-end lg:pe-4 relative"
+        className="hidden lg:text-sm lg:block lg:justify-self-end lg:self-center lg:pe-4 relative"
         id="more-options-dropdown"
       >
-        <HiDotsHorizontal onClick={() => setMoreOptions(!moreOptions)} />
+        <HiDotsHorizontal className="cursor-pointer" onClick={() => setMoreOptions(!moreOptions)} />
         {moreOptions && (
           <div className="bg-white absolute top-5 right-5 shadow-lg rounded-lg z-10">
             <div className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold">
