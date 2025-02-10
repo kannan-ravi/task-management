@@ -5,13 +5,17 @@ import { MdOutlineAnalytics } from "react-icons/md";
 type FilterSystemProps = {
   view: string;
   setView: React.Dispatch<React.SetStateAction<string>>;
+  setDrawer: React.Dispatch<React.SetStateAction<boolean>>;
 };
-function FilterSystem({ view, setView }: FilterSystemProps) {
+function FilterSystem({ view, setView, setDrawer }: FilterSystemProps) {
   const filterDropdown: string[] = ["All", "Work", "Personal"];
   return (
     <div className="container px-4 mx-auto flex flex-col gap-6 mt-4 lg:mt-8 xl:mt-12 lg:grid lg:grid-cols-[4fr_2fr_1fr] xl:grid-cols-[4fr_1.6fr_1fr] 2xl:grid-cols-[4fr_1.2fr_1fr]">
       <div className="flex items-center justify-end lg:order-3 lg:w-fit lg:items-end">
-        <button className="bg-[#7B1984] text-white px-5 py-2 rounded-2xl uppercase font-medium text-sm cursor-pointer hover:bg-transparent border-[#7B1984] border transition-all hover:text-[#7B1984] xl:px-8">
+        <button
+          className="bg-[#7B1984] text-white px-5 py-2 rounded-2xl uppercase font-medium text-sm cursor-pointer hover:bg-transparent border-[#7B1984] border transition-all hover:text-[#7B1984] xl:px-8"
+          onClick={() => setDrawer(true)}
+        >
           add task
         </button>
       </div>

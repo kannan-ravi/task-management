@@ -5,10 +5,12 @@ import BulkActionBar from "../../components/view/BulkActionBar";
 import ListTodo from "../../components/view/todo-list/ListTodo";
 import BoardTodo from "../../components/view/todo-board/BoardTodo";
 import { Todos, TodoTableData } from "../../utils/types";
+import TaskDrawer from "../../components/view/create-task/TaskDrawer";
 
 function Home() {
   const [showBulkAction, setShowBulkAction] = useState<boolean>(false);
-  const [view, setView] = useState<string>("board");
+  const [drawer, setDrawer] = useState<boolean>(false);
+  const [view, setView] = useState<string>("list");
 
   const [todos, setTodos] = useState<Todos[]>([
     {
@@ -84,13 +86,15 @@ function Home() {
   return (
     <div>
       <Header />
-      <FilterSystem setView={setView} view={view} />
+      <FilterSystem setView={setView} view={view} setDrawer={setDrawer} />
 
       {view === "list" ? (
         <ListTodo TABLE_DATA={TABLE_DATA} todos={todos} setTodos={setTodos} />
       ) : (
         <BoardTodo TABLE_DATA={TABLE_DATA} todos={todos} setTodos={setTodos} />
       )}
+
+      <TaskDrawer setDrawer={setDrawer} drawer={drawer} />
 
       {showBulkAction && <BulkActionBar />}
     </div>
