@@ -6,9 +6,10 @@ import { useDroppable } from "@dnd-kit/core";
 type TodoTableprops = {
   todos: Todos[];
   header: TodoTableData;
+  setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-function TodoTable({ todos, header }: TodoTableprops) {
+function TodoTable({ todos, header, setEditDrawer }: TodoTableprops) {
   const { setNodeRef } = useDroppable({
     id: header.id,
   });
@@ -25,7 +26,11 @@ function TodoTable({ todos, header }: TodoTableprops) {
         className={`bg-gray-200 ${todos.length <= 0 ? "h-32" : ""}`}
       >
         {todos.map((item) => (
-          <ListViewTodo key={item.id} todo={item} />
+          <ListViewTodo
+            key={item.id}
+            todo={item}
+            setEditDrawer={setEditDrawer}
+          />
         ))}
       </div>
     </div>

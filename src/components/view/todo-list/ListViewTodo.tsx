@@ -9,9 +9,10 @@ import { useDraggable } from "@dnd-kit/core";
 
 type ListViewTodoProps = {
   todo: Todos;
+  setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-function ListViewTodo({ todo }: ListViewTodoProps) {
+function ListViewTodo({ todo, setEditDrawer }: ListViewTodoProps) {
   const [moreOptions, setMoreOptions] = useState<boolean>(false);
   const [statusDropdown, setStatusDropdown] = useState<boolean>(false);
   useEffect(() => {
@@ -89,7 +90,10 @@ function ListViewTodo({ todo }: ListViewTodoProps) {
         />
         {moreOptions && (
           <div className="bg-white absolute top-5 right-5 shadow-lg rounded-lg z-10">
-            <div className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold">
+            <div
+              className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold cursor-pointer"
+              onClick={() => setEditDrawer(true)}
+            >
               <FaPencil />
               Edit
             </div>

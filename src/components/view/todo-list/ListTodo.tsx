@@ -11,9 +11,15 @@ type ListTodoType = {
   TABLE_DATA: TodoTableData[];
   todos: Todos[];
   setTodos: React.Dispatch<React.SetStateAction<Todos[]>>;
+  setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-function ListTodo({ TABLE_DATA, todos, setTodos }: ListTodoType) {
+function ListTodo({
+  TABLE_DATA,
+  todos,
+  setTodos,
+  setEditDrawer,
+}: ListTodoType) {
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
 
@@ -39,7 +45,7 @@ function ListTodo({ TABLE_DATA, todos, setTodos }: ListTodoType) {
       <div className="container px-4 mx-auto">
         <DndContext onDragEnd={handleDragEnd} sensors={[sensors]}>
           {TABLE_DATA.map((item) => (
-            <TodoTable header={item} todos={item.data} key={item.id} />
+            <TodoTable header={item} todos={item.data} key={item.id} setEditDrawer={setEditDrawer} />
           ))}
         </DndContext>
       </div>
