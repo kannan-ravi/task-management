@@ -1,7 +1,55 @@
 import GoogleLogo from "../../assets/logo/google-logo.svg";
 import Logo from "../../assets/logo/logo.svg";
 import LoginImage from "../../assets/login/login-image.jpg";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { useNavigate } from "react-router";
+
+import { auth } from "../../firebase";
+import supabase from "../../supabase";
+import { useDispatch } from "react-redux";
+import { updateUser, userType } from "../../features/auth/authSlice";
 function Login() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const loginWithGoogleAuth = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+
+      const user: userType = {
+        id: result.user.uid,
+        email: result.user.email,
+        name: result.user.displayName,
+        profile_picture_url: result.user.photoURL,
+      };
+
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (!data) {
+        const { error: insertError } = await supabase
+          .from("users")
+          .insert([user]);
+
+        if (insertError) {
+          console.error("Error inserting user:", insertError);
+          return;
+        }
+      } else if (error) {
+        console.error("Error fetching user:", error);
+        return;
+      }
+      dispatch(updateUser(user));
+      navigate("/");
+    } catch (error: any) {
+      console.error("Error during Google Sign-In:", error.message);
+    }
+  };
+
   return (
     <div className="h-screen px-4 lg:flex lg:items-center lg:px-0 lg:justify-between overflow-hidden max-h-screen max-w-screen relative">
       <div className="flex flex-col items-center justify-center h-full lg:ps-10 pe-8 lg:items-start xl:ps-40 2xl:ps-60">
@@ -14,7 +62,10 @@ function Login() {
           all-in-one task management app.
         </p>
         <div className="flex items-center justify-center mt-8">
-          <button className="bg-black flex items-center gap-4 px-8 py-3 text-white rounded-2xl hover:bg-gray-800 font-medium cursor-pointer">
+          <button
+            className="bg-black flex items-center gap-4 px-8 py-3 text-white rounded-2xl hover:bg-gray-800 font-medium cursor-pointer"
+            onClick={loginWithGoogleAuth}
+          >
             <img src={GoogleLogo} alt="Google Logo" />
             Continue with Google
           </button>
