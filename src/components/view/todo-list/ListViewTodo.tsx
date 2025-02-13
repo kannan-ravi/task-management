@@ -3,18 +3,29 @@ import Checkbox from "../../ui/Checkbox";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { FaPencil } from "react-icons/fa6";
 import { useEffect, useState } from "react";
-import type { Todos } from "../../../utils/types";
+import type { GetTodoTypes } from "../../../utils/types/service-types";
 import { MdDragIndicator } from "react-icons/md";
 import { useDraggable } from "@dnd-kit/core";
+import {
+  useDeleteTodoMutation,
+  useUpdateTodoStatusMutation,
+} from "../../../services/supabaseApi";
+import { useDispatch } from "react-redux";
+import {
+  deleteSingleTask,
+  updateStatus,
+} from "../../../features/todo/taskSlice";
+import toast from "react-hot-toast";
 
 type ListViewTodoProps = {
-  todo: Todos;
+  todo: GetTodoTypes;
   setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 function ListViewTodo({ todo, setEditDrawer }: ListViewTodoProps) {
   const [moreOptions, setMoreOptions] = useState<boolean>(false);
   const [statusDropdown, setStatusDropdown] = useState<boolean>(false);
+  const dispatch = useDispatch();
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -38,6 +49,68 @@ function ListViewTodo({ todo, setEditDrawer }: ListViewTodoProps) {
   const style = transform
     ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
     : undefined;
+
+  const [updateTodoStatus] = useUpdateTodoStatusMutation();
+  const [deleteTodo] = useDeleteTodoMutation();
+
+  const handleChangeStatus = async (status: string) => {
+    if (!todo?.id || !status) {
+      toast.error("Invalid todo data");
+      return;
+    }
+
+    try {
+      const updatePromise = updateTodoStatus({ status, id: todo.id }).unwrap();
+
+      toast.promise(updatePromise, {
+        loading: "Updating todo status...",
+        success: "Todo status updated!",
+        error: "Error updating todo status.",
+      });
+
+      const updatedTodo = await updatePromise;
+
+      if (updatedTodo) {
+        dispatch(
+          updateStatus({
+            id: todo.id,
+            oldStatus: todo.status,
+            newStatus: updatedTodo.status,
+          })
+        );
+      }
+    } catch (error) {
+      console.error("Mutation failed:", error);
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!todo?.id) {
+      toast.error("Invalid todo data");
+      return;
+    }
+
+    try {
+      const deleteTodoPromise = deleteTodo(id).unwrap();
+
+      toast.promise(deleteTodoPromise, {
+        loading: "Deleting todo...",
+        success: "Todo deleted!",
+        error: "Error deleting todo status.",
+      });
+
+      const deletedTodo = await deleteTodoPromise;
+
+      if (deletedTodo) {
+        dispatch(
+          deleteSingleTask({ id: deletedTodo[0].id, status: todo.status })
+        );
+      }
+    } catch (error) {
+      console.error("Mutation failed:", error);
+    }
+  };
+
   return (
     <div
       className="lg:grid lg:grid-cols-[2fr_1fr_1fr_1fr_1fr] bg-[#F1F1F1]"
@@ -52,7 +125,13 @@ function ListViewTodo({ todo, setEditDrawer }: ListViewTodoProps) {
         <MdDragIndicator className="text-[#A7A7A7] text-lg hidden lg:block" />
         <p>{todo.title}</p>
       </div>
-      <p className="hidden lg:text-sm lg:block lg:self-center">{todo.date}</p>
+      <p className="hidden lg:text-sm lg:block lg:self-center">
+        {new Date(todo.due_date).toLocaleString("en-GB", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })}
+      </p>
       <div
         className="hidden lg:flex lg:items-center lg:relative"
         id="status-dropdown"
@@ -63,23 +142,42 @@ function ListViewTodo({ todo, setEditDrawer }: ListViewTodoProps) {
         >
           {todo.status}
         </p>
-        {statusDropdown && (
-          <div className="lg:bg-white lg:px-3 lg:py-1 lg:rounded-sm absolute top-7 z-10">
-            <p className="hidden lg:text-sm lg:block lg:uppercase text-nowrap px-1 py-2 tracking-wider text-sm">
-              to-do
-            </p>
-            <p className="hidden lg:text-sm lg:block lg:uppercase text-nowrap px-1 py-2 tracking-wider font-semibold text-sm">
-              in-progress
-            </p>
-            <p className="hidden lg:text-sm lg:block lg:uppercase text-nowrap px-1 py-2 tracking-wider text-sm">
-              completed
-            </p>
-          </div>
-        )}
+
+        <div
+          className={`lg:bg-white lg:px-3 lg:py-1 lg:rounded-sm absolute top-10 z-10 transition-all duration-300 
+          ${
+            statusDropdown
+              ? "opacity-100 scale-100 max-h-40"
+              : "opacity-0 scale-95 max-h-0 overflow-hidden"
+          }`}
+        >
+          <p
+            onClick={() => handleChangeStatus("todo")}
+            className={`lg:text-sm lg:uppercase text-nowrap px-1 py-2 tracking-wider cursor-pointer 
+            ${todo.status === "todo" ? "font-semibold" : ""}`}
+          >
+            to-do
+          </p>
+          <p
+            onClick={() => handleChangeStatus("in_progress")}
+            className={`lg:text-sm lg:uppercase text-nowrap px-1 py-2 tracking-wider cursor-pointer 
+            ${todo.status === "in_progress" ? "font-semibold" : ""}`}
+          >
+            in-progress
+          </p>
+          <p
+            onClick={() => handleChangeStatus("completed")}
+            className={`lg:text-sm lg:uppercase text-nowrap px-1 py-2 tracking-wider cursor-pointer 
+            ${todo.status === "completed" ? "font-semibold" : ""}`}
+          >
+            completed
+          </p>
+        </div>
       </div>
-      <p className="hidden lg:text-sm lg:block lg:self-center">
+      <p className="hidden lg:text-sm lg:block lg:self-center capitalize">
         {todo.category}
       </p>
+
       <div
         className="hidden lg:text-sm lg:block lg:justify-self-end lg:self-center lg:pe-4 relative"
         id="more-options-dropdown"
@@ -88,21 +186,29 @@ function ListViewTodo({ todo, setEditDrawer }: ListViewTodoProps) {
           className="cursor-pointer"
           onClick={() => setMoreOptions(!moreOptions)}
         />
-        {moreOptions && (
-          <div className="bg-white absolute top-5 right-5 shadow-lg rounded-lg z-10">
-            <div
-              className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold cursor-pointer"
-              onClick={() => setEditDrawer(true)}
-            >
-              <FaPencil />
-              Edit
-            </div>
-            <div className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold text-red-500">
-              <FaTrashAlt />
-              Delete
-            </div>
+        <div
+          className={`bg-white absolute top-5 right-5 shadow-lg rounded-lg z-10 transition-all duration-300 
+      ${
+        moreOptions
+          ? "opacity-100 scale-100 max-h-40"
+          : "opacity-0 scale-95 max-h-0 overflow-hidden"
+      }`}
+        >
+          <div
+            className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold cursor-pointer"
+            onClick={() => setEditDrawer(true)}
+          >
+            <FaPencil />
+            Edit
           </div>
-        )}
+          <div
+            className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold text-red-500"
+            onClick={() => handleDelete(todo.id)}
+          >
+            <FaTrashAlt />
+            Delete
+          </div>
+        </div>
       </div>
     </div>
   );

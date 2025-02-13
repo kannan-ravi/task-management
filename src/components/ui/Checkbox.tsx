@@ -2,6 +2,7 @@ import { useState } from "react";
 
 function Checkbox() {
   const [isChecked, setIsChecked] = useState<boolean>(false);
+
   return (
     <div className="inline-flex items-center">
       <label className="flex items-center cursor-pointer relative">

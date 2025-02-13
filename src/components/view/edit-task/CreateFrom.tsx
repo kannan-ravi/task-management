@@ -43,13 +43,13 @@ function CreateFrom() {
             </label>
             <select className="bg-white px-2 py-2 rounded-lg border border-gray-400 w-fit min-w-48 lg:min-w-40">
               <option
-                value="to-do"
+                value="todo"
                 className="px-2 py-1 text-sm cursor-pointer border-b border-gray-400"
               >
                 To Do
               </option>
               <option
-                value="in-progress"
+                value="in_progress"
                 className="px-2 py-1 text-sm cursor-pointer border-b border-gray-400"
               >
                 In Progress

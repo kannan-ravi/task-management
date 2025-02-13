@@ -2,14 +2,15 @@ import { useEffect, useState } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import { FaPencil } from "react-icons/fa6";
 import { HiDotsHorizontal } from "react-icons/hi";
-import { Todos } from "../../../utils/types";
 import { useDraggable } from "@dnd-kit/core";
+import { GetTodoTypes } from "../../../utils/types/service-types";
 
 type BoardTodoCardProps = {
-  todo: Todos;
+  todo: GetTodoTypes;
+  setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-function BoardTodoCard({ todo }: BoardTodoCardProps) {
+function BoardTodoCard({ todo, setEditDrawer }: BoardTodoCardProps) {
   const [cardMoreOptions, setCardMoreOptions] = useState<boolean>(false);
 
   useEffect(() => {
@@ -49,7 +50,10 @@ function BoardTodoCard({ todo }: BoardTodoCardProps) {
 
         {cardMoreOptions && (
           <div className="bg-white absolute top-5 right-0 shadow-lg rounded-lg z-10">
-            <div className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold lg:text-sm">
+            <div
+              className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold lg:text-sm cursor-pointer"
+              onClick={() => setEditDrawer(true)}
+            >
               <FaPencil />
               Edit
             </div>
@@ -61,8 +65,8 @@ function BoardTodoCard({ todo }: BoardTodoCardProps) {
         )}
       </div>
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">{todo.category}</p>
-        <p className="text-sm text-gray-500">{todo.date}</p>
+        <p className="text-sm text-gray-500 capitalize">{todo.category}</p>
+        <p className="text-sm text-gray-500">{todo.due_date}</p>
       </div>
     </div>
   );

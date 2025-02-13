@@ -1,18 +1,21 @@
 import { IoIosArrowUp } from "react-icons/io";
 import ListViewTodo from "./ListViewTodo";
-import type { Todos, TodoTableData } from "../../../utils/types";
+import type { TaskStatus, TodoTableData } from "../../../utils/types/types";
 import { useDroppable } from "@dnd-kit/core";
+import useFetchTodoData from "../../../hooks/useFetchTodoData";
 
 type TodoTableprops = {
-  todos: Todos[];
   header: TodoTableData;
   setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
+  todoStatus: TaskStatus;
 };
 
-function TodoTable({ todos, header, setEditDrawer }: TodoTableprops) {
+function TodoTable({ header, setEditDrawer, todoStatus }: TodoTableprops) {
   const { setNodeRef } = useDroppable({
     id: header.id,
   });
+  const todos = useFetchTodoData(todoStatus);
+
   return (
     <div className="mb-10">
       <div
@@ -25,13 +28,21 @@ function TodoTable({ todos, header, setEditDrawer }: TodoTableprops) {
         ref={setNodeRef}
         className={`bg-gray-200 ${todos.length <= 0 ? "h-32" : ""}`}
       >
-        {todos.map((item) => (
-          <ListViewTodo
-            key={item.id}
-            todo={item}
-            setEditDrawer={setEditDrawer}
-          />
-        ))}
+        {todos && todos.length > 0 ? (
+          todos.map((item) => (
+            <ListViewTodo
+              key={item.id}
+              todo={item}
+              setEditDrawer={setEditDrawer}
+            />
+          ))
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-sm text-gray-500 text-normal">
+              No Tasks in {header.title}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

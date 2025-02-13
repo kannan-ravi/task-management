@@ -1,27 +1,103 @@
 import { useState } from "react";
 import Tiptap from "../Tiptap";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../store";
+import { useCreateTodoMutation } from "../../../services/supabaseApi";
+import { CreateTodoType } from "../../../utils/types/service-types";
+import { addTask, createNewTask } from "../../../features/todo/taskSlice";
+import toast from "react-hot-toast";
 
-function CreateFrom() {
+type CreateFromProps = {
+  setDrawer: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+function CreateFrom({ setDrawer }: CreateFromProps) {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const [createTodo] = useCreateTodoMutation();
+
+  const dispatch = useDispatch();
+
   const [description, setDescription] = useState<string>("");
+  const [todo, setTodo] = useState<CreateTodoType>({
+    user_id: user?.id ?? undefined,
+    title: "",
+    description: "",
+    due_date: "",
+    category: "work",
+    status: "todo",
+  });
+
+  const handleCategory = (category: string) => {
+    setTodo((prevTodo) => ({ ...prevTodo!, category: category.toLowerCase() }));
+  };
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
+  ) => {
+    setTodo((prevTodo) => ({
+      ...prevTodo!,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const updatedTodo = { ...todo, description };
+    try {
+      const createTaskPromise = createTodo(updatedTodo).unwrap();
+
+      await toast.promise(createTaskPromise, {
+        loading: "Creating task...",
+        success: "Task created!",
+        error: "Error creating task",
+      });
+
+      const createdTask = await createTaskPromise;
+
+      if (createdTask) {
+        dispatch(createNewTask({ todo: createdTask, status: todo.status }));
+        setDrawer(false);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
   return (
-    <form className="mt-6" onSubmit={(e) => e.preventDefault()}>
+    <form className="mt-6" onSubmit={handleSubmit}>
       <div className="mt-4 flex flex-col gap-5 overflow-scroll max-h-[calc(100vh-262px)] px-3 pb-4 lg:p-5 webkit-scrollbar-none lg:max-h-[calc(100vh-200px)]">
         <input
           type="text"
           className="bg-gray-50 border border-gray-400 tracking-wide rounded-lg block w-full p-2.5"
           placeholder="Task Title"
           name="title"
+          onChange={handleChange}
           required
         />
         <Tiptap description={description} setDescription={setDescription} />
+
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:items-center">
           <div className="flex flex-col gap-2">
             <p className="text-sm">Task Category*</p>
             <div className="flex gap-3">
-              <p className="bg-white border border-gray-400 px-4 py-1 text-sm rounded-full cursor-pointer lg:text-md">
+              <p
+                className={`border px-4 py-1 text-sm rounded-full cursor-pointer lg:text-md ${
+                  todo?.category === "work"
+                    ? "bg-[#7B1984] text-white border-[#7B1984]"
+                    : "bg-white border-gray-400 text-black"
+                }`}
+                onClick={() => handleCategory("Work")}
+              >
                 Work
               </p>
-              <p className="bg-[#7B1984] text-white border border-[#7B1984] px-4 py-1 text-sm rounded-full cursor-pointer">
+              <p
+                className={`border px-4 py-1 text-sm rounded-full cursor-pointer ${
+                  todo?.category === "personal"
+                    ? "bg-[#7B1984] text-white border-[#7B1984]"
+                    : "bg-white border-gray-400 text-black"
+                }`}
+                onClick={() => handleCategory("Personal")}
+              >
                 Personal
               </p>
             </div>
@@ -32,7 +108,9 @@ function CreateFrom() {
             </label>
             <input
               type="datetime-local"
-              id="due-date"
+              id="due_date"
+              name="due_date"
+              onChange={handleChange}
               className="bg-gray-50 border border-gray-400 tracking-wide rounded-lg block w-fit p-2.5"
             />
           </div>
@@ -40,25 +118,16 @@ function CreateFrom() {
             <label htmlFor="status" className="text-sm">
               Task Status*
             </label>
-            <select className="bg-white px-2 py-2 rounded-lg border border-gray-400 w-fit min-w-48">
-              <option
-                value="to-do"
-                className="px-2 py-1 text-sm cursor-pointer border-b border-gray-400"
-              >
-                To Do
-              </option>
-              <option
-                value="in-progress"
-                className="px-2 py-1 text-sm cursor-pointer border-b border-gray-400"
-              >
-                In Progress
-              </option>
-              <option
-                value="completed"
-                className="px-2 py-1 text-sm cursor-pointer border-b border-gray-400"
-              >
-                Completed
-              </option>
+            <select
+              className="bg-white px-2 py-2 rounded-lg border border-gray-400 w-fit min-w-48"
+              name="status"
+              id="status"
+              onChange={handleChange}
+              value={todo?.status}
+            >
+              <option value="todo">To Do</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
             </select>
           </div>
         </div>

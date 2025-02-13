@@ -1,5 +1,4 @@
 import { IoCloseSharp } from "react-icons/io5";
-import Tiptap from "../Tiptap";
 import CreateFrom from "./CreateFrom";
 
 type TaskDrawerProps = {
@@ -34,7 +33,7 @@ function TaskDrawer({ drawer, setDrawer }: TaskDrawerProps) {
             />
           </div>
 
-          <CreateFrom />
+          <CreateFrom setDrawer={setDrawer} />
         </div>
       </div>
     </>

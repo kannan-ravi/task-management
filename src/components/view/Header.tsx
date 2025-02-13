@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { signOutUser } from "../../features/auth/authSlice";
 import { useNavigate } from "react-router";
 import type { RootState } from "../../store";
+import { removeAllTask } from "../../features/todo/taskSlice";
 
 function Header() {
   const dispatch = useDispatch();
@@ -30,6 +31,7 @@ function Header() {
       setProfileDropdown((prev) => !prev);
       await auth.signOut();
       dispatch(signOutUser());
+      dispatch(removeAllTask());
       navigate("/login");
     } catch (error) {
       console.error("Error signing out:", error);
