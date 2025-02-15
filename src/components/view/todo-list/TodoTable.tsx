@@ -1,6 +1,10 @@
 import { IoIosArrowUp } from "react-icons/io";
 import ListViewTodo from "./ListViewTodo";
-import type { TaskStatus, TodoTableData } from "../../../utils/types/types";
+import type {
+  EditTaskType,
+  TaskStatus,
+  TodoTableData,
+} from "../../../utils/types/types";
 import { useDroppable } from "@dnd-kit/core";
 import useFetchTodoData from "../../../hooks/useFetchTodoData";
 import Loading from "../../ui/Loading";
@@ -8,10 +12,16 @@ import Loading from "../../ui/Loading";
 type TodoTableprops = {
   header: TodoTableData;
   setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
+  setEditTask: React.Dispatch<React.SetStateAction<EditTaskType>>;
   todoStatus: TaskStatus;
 };
 
-function TodoTable({ header, setEditDrawer, todoStatus }: TodoTableprops) {
+function TodoTable({
+  header,
+  setEditDrawer,
+  todoStatus,
+  setEditTask,
+}: TodoTableprops) {
   const { setNodeRef } = useDroppable({
     id: header.id,
   });
@@ -35,6 +45,7 @@ function TodoTable({ header, setEditDrawer, todoStatus }: TodoTableprops) {
               key={item.id}
               todo={item}
               setEditDrawer={setEditDrawer}
+              setEditTask={setEditTask}
             />
           ))
         ) : isLoading ? (

@@ -8,6 +8,7 @@ import { MdDragIndicator } from "react-icons/md";
 import { useDraggable } from "@dnd-kit/core";
 import {
   useDeleteTodoMutation,
+  useLazyGetSingleTodoQuery,
   useUpdateTodoStatusMutation,
 } from "../../../services/supabaseApi";
 import { useDispatch } from "react-redux";
@@ -16,14 +17,15 @@ import {
   updateStatus,
 } from "../../../features/todo/taskSlice";
 import toast from "react-hot-toast";
-import { TaskStatus } from "../../../utils/types/types";
+import { EditTaskType, TaskStatus } from "../../../utils/types/types";
 
 type ListViewTodoProps = {
   todo: GetTodoTypes;
   setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
+  setEditTask: React.Dispatch<React.SetStateAction<EditTaskType>>;
 };
 
-function ListViewTodo({ todo, setEditDrawer }: ListViewTodoProps) {
+function ListViewTodo({ todo, setEditDrawer, setEditTask }: ListViewTodoProps) {
   const [moreOptions, setMoreOptions] = useState<boolean>(false);
   const [statusDropdown, setStatusDropdown] = useState<boolean>(false);
   const dispatch = useDispatch();
@@ -53,6 +55,7 @@ function ListViewTodo({ todo, setEditDrawer }: ListViewTodoProps) {
 
   const [updateTodoStatus] = useUpdateTodoStatusMutation();
   const [deleteTodo] = useDeleteTodoMutation();
+  const [fetchTodo] = useLazyGetSingleTodoQuery();
 
   const handleChangeStatus = async (status: TaskStatus) => {
     if (!todo?.id || !status) {
@@ -111,6 +114,21 @@ function ListViewTodo({ todo, setEditDrawer }: ListViewTodoProps) {
       }
     } catch (error) {
       console.error("Mutation failed:", error);
+    }
+  };
+
+  const handleEdit = async () => {
+    if (!todo?.id) {
+      toast.error("Invalid todo data");
+      return;
+    }
+
+    try {
+      const refetchedData = await fetchTodo(todo.id).unwrap();
+      setEditTask(refetchedData);
+      setEditDrawer(true);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -199,7 +217,7 @@ function ListViewTodo({ todo, setEditDrawer }: ListViewTodoProps) {
         >
           <div
             className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold cursor-pointer"
-            onClick={() => setEditDrawer(true)}
+            onClick={handleEdit}
           >
             <FaPencil />
             Edit

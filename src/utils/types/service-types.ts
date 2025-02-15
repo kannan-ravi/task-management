@@ -22,11 +22,20 @@ export type CreateFileTypeProps = {
   files_url: string[];
 };
 
+export type EditTodoTypeProps = {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  due_date: string;
+  status: TaskStatus;
+};
+
 export type GetTodoTypes = {
   id: number;
   user_id: string;
   title: string;
-  description: string | null;
+  description: string;
   category: string;
   due_date: string;
   status: TaskStatus;
@@ -37,6 +46,14 @@ export type GetTodoTypes = {
 export type GetTodoPropsTypes = {
   userId: string;
   status: string;
+};
+
+export type GetFilesTypes = {
+  id: number;
+  task_id: number;
+  files_url: string[];
+  created_at: string;
+  updated_at: string;
 };
 
 export type UpdateStatusPropsTypes = { status: TaskStatus; id: number };

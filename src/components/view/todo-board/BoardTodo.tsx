@@ -6,12 +6,12 @@ import {
 } from "@dnd-kit/core";
 import { TodoTableData } from "../../../utils/types/types";
 import TodoSingleBoard from "./TodoSingleBoard";
+import { TABLE_DATA } from "../../../utils/constants/table";
 
 type BoardTodoProps = {
-  TABLE_DATA: TodoTableData[];
   setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
 };
-function BoardTodo({ TABLE_DATA, setEditDrawer }: BoardTodoProps) {
+function BoardTodo({ setEditDrawer }: BoardTodoProps) {
   function handleDragEnd(event: DragEndEvent) {
     // const { active, over } = event;
 

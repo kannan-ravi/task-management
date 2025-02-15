@@ -170,7 +170,11 @@ function CreateFrom({ setDrawer }: CreateFromProps) {
           onChange={handleChange}
           required
         />
-        <Tiptap description={description} setDescription={setDescription} />
+        <Tiptap
+          description={description}
+          setDescription={setDescription}
+          editing={false}
+        />
 
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 lg:items-center">
           <div className="flex flex-col gap-2">

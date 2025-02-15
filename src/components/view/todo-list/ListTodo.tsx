@@ -1,18 +1,19 @@
 import TodoTable from "./TodoTable";
-import type { TodoTableData } from "../../../utils/types/types";
+import type { EditTaskType } from "../../../utils/types/types";
 import {
   DndContext,
   DragEndEvent,
   PointerSensor,
   useSensor,
 } from "@dnd-kit/core";
+import { TABLE_DATA } from "../../../utils/constants/table";
 
 type ListTodoType = {
-  TABLE_DATA: TodoTableData[];
   setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
+  setEditTask: React.Dispatch<React.SetStateAction<EditTaskType>>;
 };
 
-function ListTodo({ TABLE_DATA, setEditDrawer }: ListTodoType) {
+function ListTodo({ setEditDrawer, setEditTask }: ListTodoType) {
   function handleDragEnd(event: DragEndEvent) {
     // const { active, over } = event;
     console.log(event);
@@ -38,6 +39,7 @@ function ListTodo({ TABLE_DATA, setEditDrawer }: ListTodoType) {
               todoStatus={item.id}
               key={item.id}
               setEditDrawer={setEditDrawer}
+              setEditTask={setEditTask}
             />
           ))}
         </DndContext>

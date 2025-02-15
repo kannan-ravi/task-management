@@ -9,7 +9,7 @@ import {
   FaListOl,
   FaStrikethrough,
 } from "react-icons/fa";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const MenuBar = ({ editor }: { editor: any }) => {
   if (!editor) {
@@ -70,9 +70,14 @@ const MenuBar = ({ editor }: { editor: any }) => {
 type TiptapProps = {
   description: string;
   setDescription: React.Dispatch<React.SetStateAction<string>>;
+  editing: boolean;
 };
 
-export default function Tiptap({ description, setDescription }: TiptapProps) {
+export default function Tiptap({
+  description,
+  setDescription,
+  editing,
+}: TiptapProps) {
   const [characterCount, setCharacterCount] = useState<number>(0);
   const editor = useEditor({
     extensions: [
@@ -87,8 +92,9 @@ export default function Tiptap({ description, setDescription }: TiptapProps) {
     content: description,
     onUpdate: ({ editor }) => {
       setCharacterCount(editor.getText().length);
+      const newContent = editor.getHTML();
       if (editor.getText().length < 300) {
-        setDescription(editor.getHTML());
+        setDescription(newContent);
       }
     },
     editorProps: {
@@ -99,6 +105,14 @@ export default function Tiptap({ description, setDescription }: TiptapProps) {
       },
     },
   });
+
+  if (editing) {
+    useEffect(() => {
+      if (editor && description) {
+        editor.commands.setContent(description);
+      }
+    }, [editor, description]);
+  }
 
   return (
     <div className="flex flex-col">

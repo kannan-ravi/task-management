@@ -32,6 +32,14 @@ export const TaskSlice = createSlice({
       }
     },
 
+    createNewTask: (
+      state,
+      action: PayloadAction<{ todo: GetTodoTypes[]; status: TaskStatus }>
+    ) => {
+      const { todo, status } = action.payload;
+      state[status].push(todo[0]);
+    },
+
     updateStatus: (
       state,
       action: PayloadAction<{
@@ -49,12 +57,22 @@ export const TaskSlice = createSlice({
       }
     },
 
-    createNewTask: (
+    editTodoTask: (
       state,
-      action: PayloadAction<{ todo: GetTodoTypes[]; status: TaskStatus }>
+      action: PayloadAction<{
+        todo: GetTodoTypes;
+        id: number;
+      }>
     ) => {
-      const { todo, status } = action.payload;
-      state[status].push(todo[0]);
+      const { todo, id } = action.payload;
+
+      Object.keys(state).forEach((key) => {
+        state[key as TaskStatus] = state[key as TaskStatus].filter(
+          (task) => task.id !== id
+        );
+      });
+
+      state[todo.status].push(todo);
     },
 
     deleteSingleTask: (
@@ -78,8 +96,9 @@ export const TaskSlice = createSlice({
 
 export const {
   addTask,
-  updateStatus,
   createNewTask,
+  updateStatus,
+  editTodoTask,
   removeAllTask,
   deleteSingleTask,
 } = TaskSlice.actions;

@@ -4,6 +4,8 @@ import {
   CreateFileType,
   CreateFileTypeProps,
   CreateTodoType,
+  EditTodoTypeProps,
+  GetFilesTypes,
   GetTodoPropsTypes,
   GetTodoTypes,
   UpdateStatusPropsTypes,
@@ -29,6 +31,31 @@ export const supabaseApi = createApi({
       },
     }),
 
+    getSingleTodo: builder.query<getSingleTodoType, number>({
+      queryFn: async (id) => {
+        const { data: task, error: taskError } = await supabase
+          .from("todos")
+          .select("*")
+          .eq("id", id)
+          .single();
+
+        if (taskError || !task) {
+          return { error: { message: taskError?.message || "Task not found" } };
+        }
+
+        const { data: files, error: filesError } = await supabase
+          .from("files")
+          .select("*")
+          .eq("task_id", id);
+
+        if (filesError) {
+          return { error: { message: filesError.message } };
+        }
+
+        return { data: { task: task, files: files || [] } };
+      },
+    }),
+
     createTodo: builder.mutation<GetTodoTypes[], CreateTodoType>({
       queryFn: async (todo) => {
         const { data, error } = await supabase
@@ -37,6 +64,22 @@ export const supabaseApi = createApi({
           .select();
         if (error) {
           return { error };
+        }
+
+        return { data };
+      },
+    }),
+
+    createFile: builder.mutation<CreateFileType, CreateFileTypeProps>({
+      queryFn: async ({ task_id, files_url }) => {
+        const { data, error } = await supabase
+          .from("files")
+          .insert([{ task_id, files_url }])
+          .select("*")
+          .single();
+
+        if (error) {
+          return { error: { message: error.message } };
         }
 
         return { data };
@@ -60,11 +103,12 @@ export const supabaseApi = createApi({
       },
     }),
 
-    createFile: builder.mutation<CreateFileType, CreateFileTypeProps>({
-      queryFn: async ({ task_id, files_url }) => {
+    editTodo: builder.mutation<GetTodoTypes, EditTodoTypeProps>({
+      queryFn: async (todo) => {
         const { data, error } = await supabase
-          .from("files")
-          .insert([{ task_id, files_url }])
+          .from("todos")
+          .update(todo)
+          .eq("id", todo.id)
           .select("*")
           .single();
 
@@ -75,7 +119,6 @@ export const supabaseApi = createApi({
         return { data };
       },
     }),
-
     deleteTodo: builder.mutation({
       queryFn: async (id: number) => {
         const { data, error } = await supabase
@@ -100,4 +143,11 @@ export const {
   useUpdateTodoStatusMutation,
   useDeleteTodoMutation,
   useCreateFileMutation,
+  useLazyGetSingleTodoQuery,
+  useEditTodoMutation,
 } = supabaseApi;
+
+export type getSingleTodoType = {
+  task: GetTodoTypes;
+  files: GetFilesTypes[];
+};

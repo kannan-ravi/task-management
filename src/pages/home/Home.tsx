@@ -4,9 +4,10 @@ import Header from "../../components/view/Header";
 import BulkActionBar from "../../components/view/BulkActionBar";
 import ListTodo from "../../components/view/todo-list/ListTodo";
 import BoardTodo from "../../components/view/todo-board/BoardTodo";
-import { TodoTableData } from "../../utils/types/types";
 import TaskDrawer from "../../components/view/create-task/TaskDrawer";
 import EditTaskDrawer from "../../components/view/edit-task/TaskDrawer";
+import { GetFilesTypes, GetTodoTypes } from "../../utils/types/service-types";
+import { EditTaskType } from "../../utils/types/types";
 
 function Home() {
   const [showBulkAction, setShowBulkAction] = useState<boolean>(false);
@@ -14,37 +15,40 @@ function Home() {
   const [editDrawer, setEditDrawer] = useState<boolean>(false);
   const [view, setView] = useState<string>("list");
 
-  const TABLE_DATA: TodoTableData[] = [
-    {
-      id: "todo",
-      title: "To Do",
-      bgColor: "bg-pink-200",
+  const [editTask, setEditTask] = useState<EditTaskType>({
+    task: {
+      id: 0,
+      user_id: "",
+      title: "",
+      description: "",
+      due_date: "",
+      category: "",
+      status: "todo",
+      created_at: "",
+      updated_at: "",
     },
-    {
-      id: "in_progress",
-      title: "In Progress",
-      bgColor: "bg-blue-200",
-    },
-    {
-      id: "completed",
-      title: "Completed",
-      bgColor: "bg-green-200",
-    },
-  ];
+    files: [] as GetFilesTypes[],
+  });
+
   return (
     <div>
       <Header />
       <FilterSystem setView={setView} view={view} setDrawer={setDrawer} />
 
       {view === "list" ? (
-        <ListTodo TABLE_DATA={TABLE_DATA} setEditDrawer={setEditDrawer} />
+        <ListTodo setEditDrawer={setEditDrawer} setEditTask={setEditTask} />
       ) : (
-        <BoardTodo TABLE_DATA={TABLE_DATA} setEditDrawer={setEditDrawer} />
+        <BoardTodo setEditDrawer={setEditDrawer} />
       )}
 
       <TaskDrawer setDrawer={setDrawer} drawer={drawer} />
 
-      <EditTaskDrawer setDrawer={setEditDrawer} drawer={editDrawer} />
+      <EditTaskDrawer
+        setDrawer={setEditDrawer}
+        drawer={editDrawer}
+        editTask={editTask}
+        setEditTask={setEditTask}
+      />
 
       {showBulkAction && <BulkActionBar />}
     </div>
