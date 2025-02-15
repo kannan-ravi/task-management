@@ -21,18 +21,21 @@ const MenuBar = ({ editor }: { editor: any }) => {
       <div className="flex items-center">
         <div className="flex items-center gap-2 pe-2">
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={editor.isActive("bold") ? "bg-gray-200 p-1" : "p-1"}
           >
             <FaBold />
           </button>
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={editor.isActive("italic") ? "bg-gray-200 p-1" : "p-1"}
           >
             <FaItalic />
           </button>
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleStrike().run()}
             className={editor.isActive("strike") ? "bg-gray-200 p-1" : "p-1"}
           >
@@ -41,6 +44,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
         </div>
         <div className="flex items-center gap-2 ps-2 border-s border-gray-400">
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             className={
               editor.isActive("bulletList") ? "bg-gray-200 p-1" : "p-1"
@@ -49,6 +53,7 @@ const MenuBar = ({ editor }: { editor: any }) => {
             <FaList />
           </button>
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             className={
               editor.isActive("orderedList") ? "bg-gray-200 p-1" : "p-1"

@@ -3,6 +3,7 @@ import ListViewTodo from "./ListViewTodo";
 import type { TaskStatus, TodoTableData } from "../../../utils/types/types";
 import { useDroppable } from "@dnd-kit/core";
 import useFetchTodoData from "../../../hooks/useFetchTodoData";
+import Loading from "../../ui/Loading";
 
 type TodoTableprops = {
   header: TodoTableData;
@@ -14,7 +15,7 @@ function TodoTable({ header, setEditDrawer, todoStatus }: TodoTableprops) {
   const { setNodeRef } = useDroppable({
     id: header.id,
   });
-  const todos = useFetchTodoData(todoStatus);
+  const { todos, isLoading } = useFetchTodoData(todoStatus);
 
   return (
     <div className="mb-10">
@@ -28,7 +29,7 @@ function TodoTable({ header, setEditDrawer, todoStatus }: TodoTableprops) {
         ref={setNodeRef}
         className={`bg-gray-200 ${todos.length <= 0 ? "h-32" : ""}`}
       >
-        {todos && todos.length > 0 ? (
+        {!isLoading && todos && todos.length > 0 ? (
           todos.map((item) => (
             <ListViewTodo
               key={item.id}
@@ -36,6 +37,8 @@ function TodoTable({ header, setEditDrawer, todoStatus }: TodoTableprops) {
               setEditDrawer={setEditDrawer}
             />
           ))
+        ) : isLoading ? (
+          <Loading />
         ) : (
           <div className="flex items-center justify-center h-full">
             <p className="text-sm text-gray-500 text-normal">

@@ -1,12 +1,13 @@
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabase";
 import {
+  CreateFileType,
+  CreateFileTypeProps,
   CreateTodoType,
   GetTodoPropsTypes,
   GetTodoTypes,
   UpdateStatusPropsTypes,
 } from "../utils/types/service-types";
-import { TaskType } from "../features/todo/taskSlice";
 
 export const supabaseApi = createApi({
   reducerPath: "supabaseApi",
@@ -15,7 +16,7 @@ export const supabaseApi = createApi({
     getTodoStatusTodo: builder.query<GetTodoTypes[], GetTodoPropsTypes>({
       queryFn: async ({ userId, status }) => {
         const { data, error } = await supabase
-          .from("todo")
+          .from("todos")
           .select("*")
           .eq("user_id", userId)
           .eq("status", status);
@@ -28,10 +29,10 @@ export const supabaseApi = createApi({
       },
     }),
 
-    createTodo: builder.mutation<TaskType[], CreateTodoType>({
+    createTodo: builder.mutation<GetTodoTypes[], CreateTodoType>({
       queryFn: async (todo) => {
         const { data, error } = await supabase
-          .from("todo")
+          .from("todos")
           .insert([todo])
           .select();
         if (error) {
@@ -45,9 +46,25 @@ export const supabaseApi = createApi({
     updateTodoStatus: builder.mutation<GetTodoTypes, UpdateStatusPropsTypes>({
       queryFn: async ({ status, id }) => {
         const { data, error } = await supabase
-          .from("todo")
+          .from("todos")
           .update({ status })
           .eq("id", id)
+          .select("*")
+          .single();
+
+        if (error) {
+          return { error: { message: error.message } };
+        }
+
+        return { data };
+      },
+    }),
+
+    createFile: builder.mutation<CreateFileType, CreateFileTypeProps>({
+      queryFn: async ({ task_id, files_url }) => {
+        const { data, error } = await supabase
+          .from("files")
+          .insert([{ task_id, files_url }])
           .select("*")
           .single();
 
@@ -62,7 +79,7 @@ export const supabaseApi = createApi({
     deleteTodo: builder.mutation({
       queryFn: async (id: number) => {
         const { data, error } = await supabase
-          .from("todo")
+          .from("todos")
           .delete()
           .eq("id", id)
           .select("id"); // Ensure it returns the deleted ID
@@ -82,4 +99,5 @@ export const {
   useCreateTodoMutation,
   useUpdateTodoStatusMutation,
   useDeleteTodoMutation,
+  useCreateFileMutation,
 } = supabaseApi;

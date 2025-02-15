@@ -16,6 +16,7 @@ import {
   updateStatus,
 } from "../../../features/todo/taskSlice";
 import toast from "react-hot-toast";
+import { TaskStatus } from "../../../utils/types/types";
 
 type ListViewTodoProps = {
   todo: GetTodoTypes;
@@ -53,14 +54,17 @@ function ListViewTodo({ todo, setEditDrawer }: ListViewTodoProps) {
   const [updateTodoStatus] = useUpdateTodoStatusMutation();
   const [deleteTodo] = useDeleteTodoMutation();
 
-  const handleChangeStatus = async (status: string) => {
+  const handleChangeStatus = async (status: TaskStatus) => {
     if (!todo?.id || !status) {
       toast.error("Invalid todo data");
       return;
     }
 
     try {
-      const updatePromise = updateTodoStatus({ status, id: todo.id }).unwrap();
+      const updatePromise = updateTodoStatus({
+        status: status,
+        id: todo.id,
+      }).unwrap();
 
       toast.promise(updatePromise, {
         loading: "Updating todo status...",
@@ -69,7 +73,6 @@ function ListViewTodo({ todo, setEditDrawer }: ListViewTodoProps) {
       });
 
       const updatedTodo = await updatePromise;
-
       if (updatedTodo) {
         dispatch(
           updateStatus({
@@ -144,10 +147,10 @@ function ListViewTodo({ todo, setEditDrawer }: ListViewTodoProps) {
         </p>
 
         <div
-          className={`lg:bg-white lg:px-3 lg:py-1 lg:rounded-sm absolute top-10 z-10 transition-all duration-300 
+          className={`lg:bg-white lg:px-3 lg:rounded-sm absolute top-14 xl:top-10 z-10 transition-all duration-300 
           ${
             statusDropdown
-              ? "opacity-100 scale-100 max-h-40"
+              ? "opacity-100 scale-100 max-h-32"
               : "opacity-0 scale-95 max-h-0 overflow-hidden"
           }`}
         >

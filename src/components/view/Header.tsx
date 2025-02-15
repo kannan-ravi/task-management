@@ -7,6 +7,7 @@ import { signOutUser } from "../../features/auth/authSlice";
 import { useNavigate } from "react-router";
 import type { RootState } from "../../store";
 import { removeAllTask } from "../../features/todo/taskSlice";
+import { supabaseApi } from "../../services/supabaseApi";
 
 function Header() {
   const dispatch = useDispatch();
@@ -32,6 +33,7 @@ function Header() {
       await auth.signOut();
       dispatch(signOutUser());
       dispatch(removeAllTask());
+      dispatch(supabaseApi.util.resetApiState());
       navigate("/login");
     } catch (error) {
       console.error("Error signing out:", error);
@@ -51,7 +53,7 @@ function Header() {
             TaskBuddy
           </h1>
         </div>
-        <div className="flex items-center" id="profile-dropdown">
+        <div className="flex items-center relative" id="profile-dropdown">
           <img
             src={
               user?.profile_picture_url ??
@@ -62,17 +64,18 @@ function Header() {
             onClick={() => setProfileDropdown(!profileDropdown)}
           />
           <span className="hidden lg:block lg:ml-2">{user?.name}</span>
-          {profileDropdown && (
-            <div className="absolute right-5 top-16 bg-[#FFF9F9] px-4 py-2 border border-[#7B1984] rounded-lg">
-              <button
-                onClick={handleSignOut}
-                className="flex items-center gap-2"
-              >
-                <CiLogout />
-                <span className="text-sm font-medium">Logout</span>
-              </button>
-            </div>
-          )}
+          <div
+            className={`absolute right-10 top-12 bg-[#FFF9F9] px-4 py-2 border border-[#7B1984] rounded-lg transition-all duration-300 ease-in-out ${
+              profileDropdown
+                ? "opacity-100 translate-y-0 visible"
+                : "opacity-0 -translate-y-3 invisible"
+            }`}
+          >
+            <button onClick={handleSignOut} className="flex items-center gap-2">
+              <CiLogout />
+              <span className="text-sm font-medium">Logout</span>
+            </button>
+          </div>
         </div>
       </div>
     </header>

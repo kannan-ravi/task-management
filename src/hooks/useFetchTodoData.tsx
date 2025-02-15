@@ -19,7 +19,7 @@ function useFetchTodoData(todoStatus: TaskStatus) {
       : completed;
 
   const dispatch = useDispatch();
-  const { data = [] } = useGetTodoStatusTodoQuery({
+  const { data = [], isLoading } = useGetTodoStatusTodoQuery({
     userId: user?.id ?? "",
     status: todoStatus,
   });
@@ -30,7 +30,7 @@ function useFetchTodoData(todoStatus: TaskStatus) {
     }
   }, [data, dispatch, todoStatus]);
 
-  return todos;
+  return { todos, isLoading };
 }
 
 export default useFetchTodoData;

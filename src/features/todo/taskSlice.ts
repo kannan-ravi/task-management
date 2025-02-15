@@ -1,23 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { TaskStatus } from "../../utils/types/types";
-
-export type TaskType = {
-  id: number;
-  user_id: string;
-  title: string;
-  description: string | null;
-  category: string;
-  due_date: string;
-  status: TaskStatus;
-  created_at: string;
-  updated_at: string;
-};
+import { GetTodoTypes } from "../../utils/types/service-types";
 
 export type TaskSliceType = {
-  todo: TaskType[];
-  in_progress: TaskType[];
-  completed: TaskType[];
+  todo: GetTodoTypes[];
+  in_progress: GetTodoTypes[];
+  completed: GetTodoTypes[];
 };
 
 const initialState: TaskSliceType = {
@@ -32,7 +21,7 @@ export const TaskSlice = createSlice({
   reducers: {
     addTask: (
       state,
-      action: PayloadAction<{ todos: TaskType[]; status: string }>
+      action: PayloadAction<{ todos: GetTodoTypes[]; status: string }>
     ) => {
       if (action.payload.status === "todo") {
         state.todo = action.payload.todos;
@@ -62,7 +51,7 @@ export const TaskSlice = createSlice({
 
     createNewTask: (
       state,
-      action: PayloadAction<{ todo: TaskType[]; status: TaskStatus }>
+      action: PayloadAction<{ todo: GetTodoTypes[]; status: TaskStatus }>
     ) => {
       const { todo, status } = action.payload;
       state[status].push(todo[0]);
