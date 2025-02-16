@@ -18,12 +18,11 @@ export const supabaseApi = createApi({
   baseQuery: fakeBaseQuery(),
   endpoints: (builder) => ({
     getTodoStatusTodo: builder.query<GetTodoTypes[], GetTodoPropsTypes>({
-      queryFn: async ({ userId, status }) => {
+      queryFn: async ({ userId }) => {
         const { data, error } = await supabase
           .from("todos")
           .select("*")
-          .eq("user_id", userId)
-          .eq("status", status);
+          .eq("user_id", userId);
 
         if (error) {
           return { error: { message: error.message } };

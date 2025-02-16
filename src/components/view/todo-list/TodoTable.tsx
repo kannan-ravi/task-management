@@ -29,7 +29,7 @@ function TodoTable({
   const { setNodeRef } = useDroppable({
     id: header.id,
   });
-  const { todos, isLoading } = useFetchTodoData(todoStatus);
+  const { todos, isLoading } = useFetchTodoData({ todoStatus });
 
   return (
     <div className="mb-10">

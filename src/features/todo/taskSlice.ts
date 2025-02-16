@@ -4,9 +4,7 @@ import { TaskStatus } from "../../utils/types/types";
 import { BulkActionType, GetTodoTypes } from "../../utils/types/service-types";
 
 export type TaskSliceType = {
-  todo: GetTodoTypes[];
-  in_progress: GetTodoTypes[];
-  completed: GetTodoTypes[];
+  tasks: GetTodoTypes[];
 };
 
 export type BulkEditTaskType = {
@@ -15,51 +13,38 @@ export type BulkEditTaskType = {
 };
 
 const initialState: TaskSliceType = {
-  todo: [],
-  in_progress: [],
-  completed: [],
+  tasks: [],
 };
 
 export const TaskSlice = createSlice({
   name: "task",
   initialState,
   reducers: {
-    addTask: (
-      state,
-      action: PayloadAction<{ todos: GetTodoTypes[]; status: string }>
-    ) => {
-      if (action.payload.status === "todo") {
-        state.todo = action.payload.todos;
-      } else if (action.payload.status === "in_progress") {
-        state.in_progress = action.payload.todos;
-      } else if (action.payload.status === "completed") {
-        state.completed = action.payload.todos;
-      }
+    addTask: (state, action: PayloadAction<GetTodoTypes[]>) => {
+      const todos = action.payload;
+      state.tasks = todos;
     },
 
-    createNewTask: (
-      state,
-      action: PayloadAction<{ todo: GetTodoTypes[]; status: TaskStatus }>
-    ) => {
-      const { todo, status } = action.payload;
-      state[status].push(todo[0]);
+    createNewTask: (state, action: PayloadAction<GetTodoTypes[]>) => {
+      const todo = action.payload;
+      state.tasks.push(todo[0]);
     },
 
     updateStatus: (
       state,
       action: PayloadAction<{
         id: number;
-        oldStatus: TaskStatus;
         newStatus: TaskStatus;
       }>
     ) => {
-      const { id, oldStatus, newStatus } = action.payload;
-      const todoIndex = state[oldStatus].findIndex((todo) => todo.id === id);
-      if (todoIndex > -1) {
-        const todo = state[oldStatus].splice(todoIndex, 1)[0];
-        todo.status = newStatus;
-        state[newStatus].push(todo);
-      }
+      const { id, newStatus } = action.payload;
+
+      state.tasks = state.tasks.map((task) => {
+        if (task.id === id) {
+          task.status = newStatus;
+        }
+        return task;
+      });
     },
 
     editTodoTask: (
@@ -71,73 +56,38 @@ export const TaskSlice = createSlice({
     ) => {
       const { todo, id } = action.payload;
 
-      Object.keys(state).forEach((key) => {
-        state[key as TaskStatus] = state[key as TaskStatus].filter(
-          (task) => task.id !== id
-        );
-      });
-
-      state[todo.status].push(todo);
+      const taskIndex = state.tasks.findIndex((task) => task.id === id);
+      if (taskIndex > -1) {
+        state.tasks[taskIndex] = todo;
+      }
     },
 
-    deleteSingleTask: (
-      state,
-      action: PayloadAction<{ id: number; status: TaskStatus }>
-    ) => {
-      const { id, status } = action.payload;
-
-      const taskIndex = state[status].findIndex((task) => task.id === id);
-      if (taskIndex > -1) {
-        state[status].splice(taskIndex, 1);
-      }
+    deleteSingleTask: (state, action: PayloadAction<{ id: number }>) => {
+      const { id } = action.payload;
+      state.tasks = state.tasks.filter((task) => task.id !== id);
     },
 
     bulkDeleteTask: (state, action: PayloadAction<BulkActionType[]>) => {
       const idsToDelete = action.payload.map((task) => task.id);
 
-      state.todo = state.todo.filter((task) => !idsToDelete.includes(task.id));
-      state.in_progress = state.in_progress.filter(
-        (task) => !idsToDelete.includes(task.id)
-      );
-      state.completed = state.completed.filter(
+      state.tasks = state.tasks.filter(
         (task) => !idsToDelete.includes(task.id)
       );
     },
 
     bulkStatusChangeTask: (state, action: PayloadAction<BulkEditTaskType>) => {
       const { todos, status } = action.payload;
-      todos.forEach((todo) => {
-        let findTodoIndex = state.todo.findIndex((task) => task.id === todo.id);
-        if (findTodoIndex > -1) {
-          state.todo[findTodoIndex].status = status;
-          const finalTodo = state.todo.splice(findTodoIndex, 1)[0];
-          state[status].push(finalTodo);
-        }
 
-        let findProgressIndex = state.in_progress.findIndex(
-          (task) => task.id === todo.id
-        );
-        if (findProgressIndex > -1) {
-          state.in_progress[findProgressIndex].status = status;
-          const finalTodo = state.in_progress.splice(findProgressIndex, 1)[0];
-          state[status].push(finalTodo);
+      state.tasks = state.tasks.map((task) => {
+        if (todos.some((todo) => todo.id === task.id)) {
+          task.status = status;
         }
-
-        let findCompletedIndex = state.completed.findIndex(
-          (task) => task.id === todo.id
-        );
-        if (findCompletedIndex > -1) {
-          state.completed[findCompletedIndex].status = status;
-          const finalTodo = state.completed.splice(findCompletedIndex, 1)[0];
-          state[status].push(finalTodo);
-        }
+        return task;
       });
     },
 
     removeAllTask: (state) => {
-      state.todo = [];
-      state.in_progress = [];
-      state.completed = [];
+      state.tasks = [];
     },
   },
 });

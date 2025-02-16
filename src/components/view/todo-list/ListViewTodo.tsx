@@ -84,7 +84,6 @@ function ListViewTodo({
         dispatch(
           updateStatus({
             id: todo.id,
-            oldStatus: todo.status,
             newStatus: updatedTodo.status,
           })
         );

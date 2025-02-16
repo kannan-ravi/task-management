@@ -67,7 +67,7 @@ function CreateFrom({ setDrawer }: CreateFromProps) {
       const fileNumber = i + 1;
       const filePath = `uploads/${Date.now()}-${file.name}`;
 
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from(bucketName)
         .upload(filePath, file, {
           cacheControl: "3600",
@@ -109,7 +109,7 @@ function CreateFrom({ setDrawer }: CreateFromProps) {
       });
 
       const createdTask = await createTaskPromise;
-
+      console.log(createdTask)
       if (createdTask) {
         if (files.length > 0) {
           await toast.promise(
@@ -129,7 +129,7 @@ function CreateFrom({ setDrawer }: CreateFromProps) {
           );
         }
 
-        dispatch(createNewTask({ todo: createdTask, status: todo.status }));
+        dispatch(createNewTask(createdTask));
         setDrawer(false);
         setDescription("");
         setFiles([]);

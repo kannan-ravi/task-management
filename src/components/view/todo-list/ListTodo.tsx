@@ -39,7 +39,6 @@ function ListTodo({
     dispatch(
       updateStatus({
         id: todoId,
-        oldStatus: oldStatus,
         newStatus: newStatus,
       })
     );
@@ -61,7 +60,6 @@ function ListTodo({
         dispatch(
           updateStatus({
             id: todoId,
-            oldStatus: newStatus,
             newStatus: oldStatus,
           })
         );
@@ -70,7 +68,6 @@ function ListTodo({
       dispatch(
         updateStatus({
           id: todoId,
-          oldStatus: newStatus,
           newStatus: oldStatus,
         })
       );

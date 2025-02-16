@@ -45,7 +45,6 @@ export type GetTodoTypes = {
 
 export type GetTodoPropsTypes = {
   userId: string;
-  status: string;
 };
 
 export type GetFilesTypes = {

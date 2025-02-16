@@ -20,7 +20,7 @@ function TodoSingleBoard({
     id: header.id,
   });
 
-  const { todos, isLoading } = useFetchTodoData(todoStatus);
+  const { todos, isLoading } = useFetchTodoData({ todoStatus });
 
   return (
     <div className="p-4 bg-[#F1F1F1] rounded-2xl" ref={setNodeRef}>
