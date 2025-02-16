@@ -1,16 +1,15 @@
 import { useDroppable } from "@dnd-kit/core";
-import { TodoTableData } from "../../../utils/types/types";
+import { TaskStatus, TodoTableData } from "../../../utils/types/types";
 import BoardTodoCard from "./BoardTodoCard";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../../store";
-import { useGetTodoStatusTodoQuery } from "../../../services/supabaseApi";
 import { useEffect } from "react";
 import { addTask } from "../../../features/todo/taskSlice";
+import useFetchTodoData from "../../../hooks/useFetchTodoData";
+import Loading from "../../ui/Loading";
 
 type TodoSingleBoardProps = {
   header: TodoTableData;
   setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
-  todoStatus: string;
+  todoStatus: TaskStatus;
 };
 function TodoSingleBoard({
   header,
@@ -21,29 +20,8 @@ function TodoSingleBoard({
     id: header.id,
   });
 
-  const { user } = useSelector((state: RootState) => state.auth);
-  const { todo, in_progress, completed } = useSelector(
-    (state: RootState) => state.task
-  );
+  const { todos, isLoading } = useFetchTodoData(todoStatus);
 
-  const todos =
-    todoStatus === "todo"
-      ? todo
-      : todoStatus === "in_progress"
-      ? in_progress
-      : completed;
-
-  const dispatch = useDispatch();
-  const { data = [] } = useGetTodoStatusTodoQuery({
-    userId: user?.id ?? "",
-    status: todoStatus,
-  });
-
-  useEffect(() => {
-    if (data.length > 0) {
-      dispatch(addTask({ todos: data, status: todoStatus }));
-    }
-  }, [data, dispatch, todoStatus]);
   return (
     <div className="p-4 bg-[#F1F1F1] rounded-2xl" ref={setNodeRef}>
       <div className="flex items-center gap-2">
@@ -54,14 +32,28 @@ function TodoSingleBoard({
         </h2>
       </div>
 
-      <div className="mt-4 flex flex-col gap-4">
-        {todos.map((todo) => (
-          <BoardTodoCard
-            key={todo.id}
-            todo={todo}
-            setEditDrawer={setEditDrawer}
-          />
-        ))}
+      <div
+        className={`mt-4 flex flex-col gap-4 ${
+          todos.length <= 0 ? "h-32" : ""
+        }`}
+      >
+        {!isLoading && todos && todos.length > 0 ? (
+          todos.map((todo) => (
+            <BoardTodoCard
+              key={todo.id}
+              todo={todo}
+              setEditDrawer={setEditDrawer}
+            />
+          ))
+        ) : isLoading ? (
+          <Loading />
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-sm text-gray-500 text-normal">
+              No Tasks in {header.title}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

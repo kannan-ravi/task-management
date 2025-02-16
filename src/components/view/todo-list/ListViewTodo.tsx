@@ -7,25 +7,30 @@ import type { GetTodoTypes } from "../../../utils/types/service-types";
 import { MdDragIndicator } from "react-icons/md";
 import { useDraggable } from "@dnd-kit/core";
 import {
-  useDeleteTodoMutation,
   useLazyGetSingleTodoQuery,
   useUpdateTodoStatusMutation,
 } from "../../../services/supabaseApi";
 import { useDispatch } from "react-redux";
-import {
-  deleteSingleTask,
-  updateStatus,
-} from "../../../features/todo/taskSlice";
+import { updateStatus } from "../../../features/todo/taskSlice";
 import toast from "react-hot-toast";
 import { EditTaskType, TaskStatus } from "../../../utils/types/types";
+import { useDeleteTodo } from "../../../hooks/useDeleteTodo";
 
 type ListViewTodoProps = {
   todo: GetTodoTypes;
   setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
   setEditTask: React.Dispatch<React.SetStateAction<EditTaskType>>;
+  selectedTodo: number[];
+  setSelectedTodo: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
-function ListViewTodo({ todo, setEditDrawer, setEditTask }: ListViewTodoProps) {
+function ListViewTodo({
+  todo,
+  setEditDrawer,
+  setEditTask,
+  selectedTodo,
+  setSelectedTodo,
+}: ListViewTodoProps) {
   const [moreOptions, setMoreOptions] = useState<boolean>(false);
   const [statusDropdown, setStatusDropdown] = useState<boolean>(false);
   const dispatch = useDispatch();
@@ -46,7 +51,7 @@ function ListViewTodo({ todo, setEditDrawer, setEditTask }: ListViewTodoProps) {
   }, [moreOptions, statusDropdown]);
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
-    id: todo.id,
+    id: todo.id + "--" + todo.status,
   });
 
   const style = transform
@@ -54,7 +59,6 @@ function ListViewTodo({ todo, setEditDrawer, setEditTask }: ListViewTodoProps) {
     : undefined;
 
   const [updateTodoStatus] = useUpdateTodoStatusMutation();
-  const [deleteTodo] = useDeleteTodoMutation();
   const [fetchTodo] = useLazyGetSingleTodoQuery();
 
   const handleChangeStatus = async (status: TaskStatus) => {
@@ -90,32 +94,7 @@ function ListViewTodo({ todo, setEditDrawer, setEditTask }: ListViewTodoProps) {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!todo?.id) {
-      toast.error("Invalid todo data");
-      return;
-    }
-
-    try {
-      const deleteTodoPromise = deleteTodo(id).unwrap();
-
-      toast.promise(deleteTodoPromise, {
-        loading: "Deleting todo...",
-        success: "Todo deleted!",
-        error: "Error deleting todo status.",
-      });
-
-      const deletedTodo = await deleteTodoPromise;
-
-      if (deletedTodo) {
-        dispatch(
-          deleteSingleTask({ id: deletedTodo[0].id, status: todo.status })
-        );
-      }
-    } catch (error) {
-      console.error("Mutation failed:", error);
-    }
-  };
+  const { handleDelete } = useDeleteTodo();
 
   const handleEdit = async () => {
     if (!todo?.id) {
@@ -141,8 +120,16 @@ function ListViewTodo({ todo, setEditDrawer, setEditTask }: ListViewTodoProps) {
       style={style}
     >
       <div className="flex items-center gap-4 py-3 px-4 border-b border-[#0000001A] last:rounded-b-xl">
-        <Checkbox />
-        <FaCheckCircle className="text-[#A7A7A7] text-lg" />
+        <Checkbox
+          selectedTodo={selectedTodo}
+          setSelectedTodo={setSelectedTodo}
+          todo={todo}
+        />
+        <FaCheckCircle
+          className={`text-lg ${
+            todo.status === "completed" ? "text-green-500" : "text-gray-400"
+          }`}
+        />
         <MdDragIndicator className="text-[#A7A7A7] text-lg hidden lg:block" />
         <p>{todo.title}</p>
       </div>
@@ -224,7 +211,7 @@ function ListViewTodo({ todo, setEditDrawer, setEditTask }: ListViewTodoProps) {
           </div>
           <div
             className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold text-red-500"
-            onClick={() => handleDelete(todo.id)}
+            onClick={() => handleDelete(todo.id, todo.status)}
           >
             <FaTrashAlt />
             Delete

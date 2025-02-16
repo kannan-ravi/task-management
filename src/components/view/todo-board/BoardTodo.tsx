@@ -4,7 +4,6 @@ import {
   PointerSensor,
   useSensor,
 } from "@dnd-kit/core";
-import { TodoTableData } from "../../../utils/types/types";
 import TodoSingleBoard from "./TodoSingleBoard";
 import { TABLE_DATA } from "../../../utils/constants/table";
 

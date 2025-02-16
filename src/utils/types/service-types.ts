@@ -57,3 +57,7 @@ export type GetFilesTypes = {
 };
 
 export type UpdateStatusPropsTypes = { status: TaskStatus; id: number };
+
+export type BulkActionType = {
+  id: number;
+};

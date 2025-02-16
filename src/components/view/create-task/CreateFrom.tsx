@@ -111,21 +111,23 @@ function CreateFrom({ setDrawer }: CreateFromProps) {
       const createdTask = await createTaskPromise;
 
       if (createdTask) {
-        await toast.promise(
-          async () => {
-            const uploadedUrls = await uploadFiles(files);
-            const uploadedFilesPromise = createFile({
-              task_id: createdTask[0].id,
-              files_url: uploadedUrls,
-            }).unwrap();
-            await uploadedFilesPromise;
-          },
-          {
-            loading: "Uploading files...",
-            success: "Files Uploaded!",
-            error: "Error uploading files",
-          }
-        );
+        if (files.length > 0) {
+          await toast.promise(
+            async () => {
+              const uploadedUrls = await uploadFiles(files);
+              const uploadedFilesPromise = createFile({
+                task_id: createdTask[0].id,
+                files_url: uploadedUrls,
+              }).unwrap();
+              await uploadedFilesPromise;
+            },
+            {
+              loading: "Uploading files...",
+              success: "Files Uploaded!",
+              error: "Error uploading files",
+            }
+          );
+        }
 
         dispatch(createNewTask({ todo: createdTask, status: todo.status }));
         setDrawer(false);

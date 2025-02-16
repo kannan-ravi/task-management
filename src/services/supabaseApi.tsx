@@ -1,6 +1,7 @@
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabase";
 import {
+  BulkActionType,
   CreateFileType,
   CreateFileTypeProps,
   CreateTodoType,
@@ -10,6 +11,7 @@ import {
   GetTodoTypes,
   UpdateStatusPropsTypes,
 } from "../utils/types/service-types";
+import { TaskStatus } from "../utils/types/types";
 
 export const supabaseApi = createApi({
   reducerPath: "supabaseApi",
@@ -125,7 +127,7 @@ export const supabaseApi = createApi({
           .from("todos")
           .delete()
           .eq("id", id)
-          .select("id"); // Ensure it returns the deleted ID
+          .select("id");
 
         if (error) {
           return { error: { message: error.message } };
@@ -134,6 +136,38 @@ export const supabaseApi = createApi({
         return { data };
       },
     }),
+    bulkDeleteTodo: builder.mutation<BulkActionType[], number[]>({
+      queryFn: async (ids) => {
+        const { data, error } = await supabase
+          .from("todos")
+          .delete()
+          .in("id", ids)
+          .select("id");
+
+        if (error) {
+          return { error: { message: error.message } };
+        }
+
+        return { data };
+      },
+    }),
+    bulkStatusChange: builder.mutation<BulkActionType[], BulkStatusChangeProps>(
+      {
+        queryFn: async ({ ids, status }) => {
+          const { data, error } = await supabase
+            .from("todos")
+            .update({ status })
+            .in("id", ids)
+            .select("id");
+
+          if (error) {
+            return { error: { message: error.message } };
+          }
+
+          return { data };
+        },
+      }
+    ),
   }),
 });
 
@@ -145,9 +179,16 @@ export const {
   useCreateFileMutation,
   useLazyGetSingleTodoQuery,
   useEditTodoMutation,
+  useBulkDeleteTodoMutation,
+  useBulkStatusChangeMutation,
 } = supabaseApi;
 
 export type getSingleTodoType = {
   task: GetTodoTypes;
   files: GetFilesTypes[];
+};
+
+export type BulkStatusChangeProps = {
+  ids: number[];
+  status: TaskStatus;
 };

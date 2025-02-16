@@ -18,6 +18,7 @@ import { supabaseApi } from "./services/supabaseApi";
 const persistConfig = {
   key: "root",
   storage,
+  blacklist: [supabaseApi.reducerPath],
 };
 
 const rootReducer = combineReducers({

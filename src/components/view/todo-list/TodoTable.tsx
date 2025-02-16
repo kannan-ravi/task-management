@@ -14,6 +14,8 @@ type TodoTableprops = {
   setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
   setEditTask: React.Dispatch<React.SetStateAction<EditTaskType>>;
   todoStatus: TaskStatus;
+  selectedTodo: number[];
+  setSelectedTodo: React.Dispatch<React.SetStateAction<number[]>>;
 };
 
 function TodoTable({
@@ -21,6 +23,8 @@ function TodoTable({
   setEditDrawer,
   todoStatus,
   setEditTask,
+  selectedTodo,
+  setSelectedTodo,
 }: TodoTableprops) {
   const { setNodeRef } = useDroppable({
     id: header.id,
@@ -46,6 +50,8 @@ function TodoTable({
               todo={item}
               setEditDrawer={setEditDrawer}
               setEditTask={setEditTask}
+              selectedTodo={selectedTodo}
+              setSelectedTodo={setSelectedTodo}
             />
           ))
         ) : isLoading ? (

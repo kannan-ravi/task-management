@@ -4,6 +4,7 @@ import { FaPencil } from "react-icons/fa6";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { useDraggable } from "@dnd-kit/core";
 import { GetTodoTypes } from "../../../utils/types/service-types";
+import { useDeleteTodo } from "../../../hooks/useDeleteTodo";
 
 type BoardTodoCardProps = {
   todo: GetTodoTypes;
@@ -33,6 +34,8 @@ function BoardTodoCard({ todo, setEditDrawer }: BoardTodoCardProps) {
   const style = transform
     ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
     : undefined;
+
+  const { handleDelete } = useDeleteTodo();
   return (
     <div
       className="bg-white rounded-lg p-4 h-32 flex flex-col justify-between"
@@ -57,7 +60,10 @@ function BoardTodoCard({ todo, setEditDrawer }: BoardTodoCardProps) {
               <FaPencil />
               Edit
             </div>
-            <div className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold text-red-500  lg:text-sm">
+            <div
+              className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold text-red-500  lg:text-sm"
+              onClick={() => handleDelete(todo.id, todo.status)}
+            >
               <FaTrashAlt />
               Delete
             </div>
