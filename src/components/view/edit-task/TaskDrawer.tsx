@@ -84,7 +84,7 @@ function EditTaskDrawer({
                   <ul className="py-2 px-3 flex flex-col gap-2">
                     {editTask.activities.map((activity) => (
                       <li
-                        className="flex items-center justify-between gap-2"
+                        className="flex items-center justify-between gap-2 py-1"
                         key={activity.id}
                       >
                         <p className="text-sm text-gray-500">

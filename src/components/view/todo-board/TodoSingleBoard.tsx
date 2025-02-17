@@ -1,26 +1,26 @@
 import { useDroppable } from "@dnd-kit/core";
-import { TaskStatus, TodoTableData } from "../../../utils/types/types";
+import { TodoTableData } from "../../../utils/types/types";
 import BoardTodoCard from "./BoardTodoCard";
-import { useEffect } from "react";
-import { addTask } from "../../../features/todo/taskSlice";
-import useFetchTodoData from "../../../hooks/useFetchTodoData";
 import Loading from "../../ui/Loading";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store";
 
 type TodoSingleBoardProps = {
   header: TodoTableData;
   setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
-  todoStatus: TaskStatus;
+  isLoading: boolean;
 };
 function TodoSingleBoard({
   header,
   setEditDrawer,
-  todoStatus,
+  isLoading,
 }: TodoSingleBoardProps) {
   const { setNodeRef } = useDroppable({
     id: header.id,
   });
 
-  const { todos, isLoading } = useFetchTodoData({ todoStatus });
+  const { tasks } = useSelector((task: RootState) => task.task);
+  const todosData = tasks.filter((task) => task.status === header.id);
 
   return (
     <div className="p-4 bg-[#F1F1F1] rounded-2xl" ref={setNodeRef}>
@@ -34,11 +34,11 @@ function TodoSingleBoard({
 
       <div
         className={`mt-4 flex flex-col gap-4 ${
-          todos.length <= 0 ? "h-32" : ""
+          todosData.length <= 0 ? "h-32" : ""
         }`}
       >
-        {!isLoading && todos && todos.length > 0 ? (
-          todos.map((todo) => (
+        {!isLoading && todosData && todosData.length > 0 ? (
+          todosData.map((todo) => (
             <BoardTodoCard
               key={todo.id}
               todo={todo}

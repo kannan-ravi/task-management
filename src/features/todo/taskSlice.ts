@@ -5,6 +5,9 @@ import { BulkActionType, GetTodoTypes } from "../../utils/types/service-types";
 
 export type TaskSliceType = {
   tasks: GetTodoTypes[];
+  category_filter: string;
+  due_date_filter: string;
+  search_filter: string;
 };
 
 export type BulkEditTaskType = {
@@ -14,6 +17,9 @@ export type BulkEditTaskType = {
 
 const initialState: TaskSliceType = {
   tasks: [],
+  category_filter: "",
+  due_date_filter: "",
+  search_filter: "",
 };
 
 export const TaskSlice = createSlice({
@@ -89,6 +95,23 @@ export const TaskSlice = createSlice({
     removeAllTask: (state) => {
       state.tasks = [];
     },
+
+    removeAllFilter: (state) => {
+      state.category_filter = "";
+      state.due_date_filter = "";
+    },
+
+    changeCategoryFilter: (state, action: PayloadAction<string>) => {
+      state.category_filter = action.payload;
+    },
+
+    changeDueDateFilter: (state, action: PayloadAction<string>) => {
+      state.due_date_filter = action.payload;
+    },
+
+    changeSearchFilter: (state, action: PayloadAction<string>) => {
+      state.search_filter = action.payload;
+    },
   },
 });
 
@@ -98,9 +121,14 @@ export const {
   updateStatus,
   editTodoTask,
   removeAllTask,
+  removeAllFilter,
   deleteSingleTask,
   bulkDeleteTask,
   bulkStatusChangeTask,
+
+  changeCategoryFilter,
+  changeDueDateFilter,
+  changeSearchFilter,
 } = TaskSlice.actions;
 
 export default TaskSlice.reducer;

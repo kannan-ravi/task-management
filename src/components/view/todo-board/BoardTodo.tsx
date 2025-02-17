@@ -9,8 +9,9 @@ import { TABLE_DATA } from "../../../utils/constants/table";
 
 type BoardTodoProps = {
   setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
+  isLoading: boolean;
 };
-function BoardTodo({ setEditDrawer }: BoardTodoProps) {
+function BoardTodo({ setEditDrawer, isLoading }: BoardTodoProps) {
   function handleDragEnd(event: DragEndEvent) {
     // const { active, over } = event;
 
@@ -34,8 +35,8 @@ function BoardTodo({ setEditDrawer }: BoardTodoProps) {
           <TodoSingleBoard
             key={item.id}
             header={item}
-            todoStatus={item.id}
             setEditDrawer={setEditDrawer}
+            isLoading={isLoading}
           />
         ))}
       </DndContext>

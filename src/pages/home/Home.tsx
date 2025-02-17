@@ -11,6 +11,7 @@ import {
   GetFilesTypes,
 } from "../../utils/types/service-types";
 import { EditTaskType } from "../../utils/types/types";
+import useFetchTodoData from "../../hooks/useFetchTodoData";
 
 function Home() {
   const [showBulkAction, setShowBulkAction] = useState<boolean>(false);
@@ -42,6 +43,8 @@ function Home() {
       setShowBulkAction(false);
     }
   }, [selectedTodo.length]);
+
+  const { isLoading } = useFetchTodoData();
   return (
     <div>
       <Header />
@@ -53,9 +56,10 @@ function Home() {
           setEditTask={setEditTask}
           selectedTodo={selectedTodo}
           setSelectedTodo={setSelectedTodo}
+          isLoading={isLoading}
         />
       ) : (
-        <BoardTodo setEditDrawer={setEditDrawer} />
+        <BoardTodo setEditDrawer={setEditDrawer} isLoading={isLoading} />
       )}
 
       <TaskDrawer setDrawer={setDrawer} drawer={drawer} />

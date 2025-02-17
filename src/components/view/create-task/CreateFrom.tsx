@@ -114,7 +114,7 @@ function CreateFrom({ setDrawer }: CreateFromProps) {
       });
 
       const createdTask = await createTaskPromise;
-      console.log(createdTask);
+
       if (createdTask) {
         if (files.length > 0) {
           await toast.promise(

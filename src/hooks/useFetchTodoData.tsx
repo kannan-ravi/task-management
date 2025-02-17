@@ -2,26 +2,33 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../store";
 import { useGetTodoStatusTodoQuery } from "../services/supabaseApi";
 import { useEffect } from "react";
-import { addTask } from "../features/todo/taskSlice";
-import { TaskStatus } from "../utils/types/types";
+import { addTask, removeAllTask } from "../features/todo/taskSlice";
 
-function useFetchTodoData({ todoStatus }: { todoStatus: TaskStatus }) {
+function useFetchTodoData() {
   const { user } = useSelector((state: RootState) => state.auth);
-  const { tasks } = useSelector((state: RootState) => state.task);
-
+  const { category_filter, tasks, due_date_filter, search_filter } =
+    useSelector((state: RootState) => state.task);
   const dispatch = useDispatch();
-  const { data = [], isLoading } = useGetTodoStatusTodoQuery({
+  const {
+    data = [],
+    isLoading,
+    refetch,
+  } = useGetTodoStatusTodoQuery({
     userId: user?.id ?? "",
+    category: category_filter,
+    due_date: due_date_filter,
+    search: search_filter,
   });
 
   useEffect(() => {
-    if (data.length > 0) {
+    if (data.length > 0 && JSON.stringify(data) !== JSON.stringify(tasks)) {
       dispatch(addTask(data));
+    } else if (data.length === 0 && tasks.length > 0) {
+      dispatch(removeAllTask());
     }
-  }, [data, dispatch]);
+  }, [data, dispatch, tasks]);
 
-  const todos = tasks.filter((task) => task.status === todoStatus);
-  return { todos, isLoading };
+  return { todos: data, isLoading, refetch };
 }
 
 export default useFetchTodoData;

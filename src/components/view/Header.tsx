@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { signOutUser } from "../../features/auth/authSlice";
 import { useNavigate } from "react-router";
 import type { RootState } from "../../store";
-import { removeAllTask } from "../../features/todo/taskSlice";
+import { removeAllFilter, removeAllTask } from "../../features/todo/taskSlice";
 import { supabaseApi } from "../../services/supabaseApi";
 
 function Header() {
@@ -33,6 +33,7 @@ function Header() {
       await auth.signOut();
       dispatch(signOutUser());
       dispatch(removeAllTask());
+      dispatch(removeAllFilter());
       dispatch(supabaseApi.util.resetApiState());
       navigate("/login");
     } catch (error) {

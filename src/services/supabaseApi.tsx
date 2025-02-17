@@ -20,11 +20,24 @@ export const supabaseApi = createApi({
   baseQuery: fakeBaseQuery(),
   endpoints: (builder) => ({
     getTodoStatusTodo: builder.query<GetTodoTypes[], GetTodoPropsTypes>({
-      queryFn: async ({ userId }) => {
-        const { data, error } = await supabase
-          .from("todos")
-          .select("*")
-          .eq("user_id", userId);
+      queryFn: async ({ userId, category, due_date, search }) => {
+        let query = supabase.from("todos").select("*").eq("user_id", userId);
+
+        if (category) {
+          query = query.eq("category", category);
+        }
+
+        if (due_date) {
+          query = query
+            .gte("due_date", `${due_date} 00:00:00`)
+            .lte("due_date", `${due_date} 23:59:59`);
+        }
+
+        if (search) {
+          query = query.ilike("title", `%${search}%`);
+        }
+
+        const { data, error } = await query;
 
         if (error) {
           return { error: { message: error.message } };
@@ -58,7 +71,8 @@ export const supabaseApi = createApi({
         const { data: activities, error: activitiesError } = await supabase
           .from("activities")
           .select("*")
-          .eq("task_id", id);
+          .eq("task_id", id)
+          .order("created_at", { ascending: true });
 
         if (activitiesError) {
           return { error: { message: activitiesError.message } };

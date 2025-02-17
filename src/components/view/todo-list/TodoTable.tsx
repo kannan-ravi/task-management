@@ -1,19 +1,16 @@
 import { IoIosArrowUp } from "react-icons/io";
 import ListViewTodo from "./ListViewTodo";
-import type {
-  EditTaskType,
-  TaskStatus,
-  TodoTableData,
-} from "../../../utils/types/types";
+import type { EditTaskType, TodoTableData } from "../../../utils/types/types";
 import { useDroppable } from "@dnd-kit/core";
-import useFetchTodoData from "../../../hooks/useFetchTodoData";
 import Loading from "../../ui/Loading";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store";
 
 type TodoTableprops = {
   header: TodoTableData;
   setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
   setEditTask: React.Dispatch<React.SetStateAction<EditTaskType>>;
-  todoStatus: TaskStatus;
+  isLoading: boolean;
   selectedTodo: number[];
   setSelectedTodo: React.Dispatch<React.SetStateAction<number[]>>;
 };
@@ -21,7 +18,7 @@ type TodoTableprops = {
 function TodoTable({
   header,
   setEditDrawer,
-  todoStatus,
+  isLoading,
   setEditTask,
   selectedTodo,
   setSelectedTodo,
@@ -29,8 +26,10 @@ function TodoTable({
   const { setNodeRef } = useDroppable({
     id: header.id,
   });
-  const { todos, isLoading } = useFetchTodoData({ todoStatus });
 
+  const { tasks } = useSelector((state: RootState) => state.task);
+
+  const todoData = tasks.filter((task) => task.status === header.id);
   return (
     <div className="mb-10">
       <div
@@ -41,10 +40,10 @@ function TodoTable({
       </div>
       <div
         ref={setNodeRef}
-        className={`bg-gray-200 ${todos.length <= 0 ? "h-32" : ""}`}
+        className={`bg-gray-200 ${todoData.length <= 0 ? "h-32" : ""}`}
       >
-        {!isLoading && todos && todos.length > 0 ? (
-          todos.map((item) => (
+        {!isLoading && todoData && todoData.length > 0 ? (
+          todoData.map((item) => (
             <ListViewTodo
               key={item.id}
               todo={item}

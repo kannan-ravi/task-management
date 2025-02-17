@@ -119,6 +119,7 @@ function ListViewTodo({
 
     try {
       const refetchedData = await fetchTodo(todo.id).unwrap();
+      setMoreOptions(false);
       setEditTask(refetchedData);
       setEditDrawer(true);
     } catch (error) {
@@ -146,7 +147,7 @@ function ListViewTodo({
           }`}
         />
         <MdDragIndicator className="text-[#A7A7A7] text-lg hidden lg:block" />
-        <p>{todo.title}</p>
+        <p onClick={handleEdit} className="cursor-pointer">{todo.title}</p>
       </div>
       <p className="hidden lg:text-sm lg:block lg:self-center">
         {new Date(todo.due_date).toLocaleString("en-GB", {

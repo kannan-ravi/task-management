@@ -17,6 +17,7 @@ type ListTodoType = {
   setEditTask: React.Dispatch<React.SetStateAction<EditTaskType>>;
   selectedTodo: number[];
   setSelectedTodo: React.Dispatch<React.SetStateAction<number[]>>;
+  isLoading: boolean;
 };
 
 function ListTodo({
@@ -24,6 +25,7 @@ function ListTodo({
   setEditTask,
   selectedTodo,
   setSelectedTodo,
+  isLoading,
 }: ListTodoType) {
   const [updateTodoStatus] = useUpdateTodoStatusMutation();
   const dispatch = useDispatch();
@@ -86,12 +88,12 @@ function ListTodo({
           {TABLE_DATA.map((item) => (
             <TodoTable
               header={item}
-              todoStatus={item.id}
               key={item.id}
               setEditDrawer={setEditDrawer}
               setEditTask={setEditTask}
               selectedTodo={selectedTodo}
               setSelectedTodo={setSelectedTodo}
+              isLoading={isLoading}
             />
           ))}
         </DndContext>

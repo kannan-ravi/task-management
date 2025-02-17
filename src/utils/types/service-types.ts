@@ -66,6 +66,9 @@ export type GetTodoTypes = {
 
 export type GetTodoPropsTypes = {
   userId: string;
+  category: string;
+  due_date: string;
+  search: string;
 };
 
 export type GetFilesTypes = {
