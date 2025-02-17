@@ -34,14 +34,14 @@ export const TaskSlice = createSlice({
       state,
       action: PayloadAction<{
         id: number;
-        newStatus: TaskStatus;
+        status: TaskStatus;
       }>
     ) => {
-      const { id, newStatus } = action.payload;
+      const { id, status } = action.payload;
 
       state.tasks = state.tasks.map((task) => {
         if (task.id === id) {
-          task.status = newStatus;
+          task.status = status;
         }
         return task;
       });

@@ -3,10 +3,14 @@ import Checkbox from "../../ui/Checkbox";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { FaPencil } from "react-icons/fa6";
 import { useEffect, useState } from "react";
-import type { GetTodoTypes } from "../../../utils/types/service-types";
+import type {
+  CreateActivitiesProps,
+  GetTodoTypes,
+} from "../../../utils/types/service-types";
 import { MdDragIndicator } from "react-icons/md";
 import { useDraggable } from "@dnd-kit/core";
 import {
+  useCreateActivitiesMutation,
   useLazyGetSingleTodoQuery,
   useUpdateTodoStatusMutation,
 } from "../../../services/supabaseApi";
@@ -59,6 +63,7 @@ function ListViewTodo({
     : undefined;
 
   const [updateTodoStatus] = useUpdateTodoStatusMutation();
+  const [createActivities] = useCreateActivitiesMutation();
   const [fetchTodo] = useLazyGetSingleTodoQuery();
 
   const handleChangeStatus = async (status: TaskStatus) => {
@@ -81,10 +86,21 @@ function ListViewTodo({
 
       const updatedTodo = await updatePromise;
       if (updatedTodo) {
+        const activities: CreateActivitiesProps = {
+          task_id: todo.id,
+          action: "status-changed",
+          details: {
+            field: "status",
+            old_value: todo.status,
+            new_value: updatedTodo.status,
+          },
+        };
+
+        await createActivities(activities).unwrap();
         dispatch(
           updateStatus({
             id: todo.id,
-            newStatus: updatedTodo.status,
+            status: updatedTodo.status,
           })
         );
       }
@@ -209,8 +225,8 @@ function ListViewTodo({
             Edit
           </div>
           <div
-            className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold text-red-500"
-            onClick={() => handleDelete(todo.id, todo.status)}
+            className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold text-red-500 cursor-pointer"
+            onClick={() => handleDelete(todo.id)}
           >
             <FaTrashAlt />
             Delete

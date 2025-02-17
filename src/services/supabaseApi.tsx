@@ -2,10 +2,12 @@ import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 import supabase from "../supabase";
 import {
   BulkActionType,
+  CreateActivitiesProps,
   CreateFileType,
   CreateFileTypeProps,
   CreateTodoType,
   EditTodoTypeProps,
+  GetActitvitesTypes,
   GetFilesTypes,
   GetTodoPropsTypes,
   GetTodoTypes,
@@ -53,7 +55,16 @@ export const supabaseApi = createApi({
           return { error: { message: filesError.message } };
         }
 
-        return { data: { task: task, files: files || [] } };
+        const { data: activities, error: activitiesError } = await supabase
+          .from("activities")
+          .select("*")
+          .eq("task_id", id);
+
+        if (activitiesError) {
+          return { error: { message: activitiesError.message } };
+        }
+
+        return { data: { task: task, files: files || [], activities } };
       },
     }),
 
@@ -65,6 +76,25 @@ export const supabaseApi = createApi({
           .select();
         if (error) {
           return { error };
+        }
+
+        return { data };
+      },
+    }),
+
+    createActivities: builder.mutation<
+      GetActitvitesTypes[],
+      CreateActivitiesProps
+    >({
+      queryFn: async (activity) => {
+        const { data, error } = await supabase
+          .from("activities")
+          .insert([activity])
+          .select("*")
+          .single();
+
+        if (error) {
+          return { error: { message: error.message } };
         }
 
         return { data };
@@ -172,11 +202,12 @@ export const supabaseApi = createApi({
 
 export const {
   useGetTodoStatusTodoQuery,
+  useLazyGetSingleTodoQuery,
   useCreateTodoMutation,
+  useCreateActivitiesMutation,
+  useCreateFileMutation,
   useUpdateTodoStatusMutation,
   useDeleteTodoMutation,
-  useCreateFileMutation,
-  useLazyGetSingleTodoQuery,
   useEditTodoMutation,
   useBulkDeleteTodoMutation,
   useBulkStatusChangeMutation,
@@ -185,6 +216,7 @@ export const {
 export type getSingleTodoType = {
   task: GetTodoTypes;
   files: GetFilesTypes[];
+  activities: GetActitvitesTypes[];
 };
 
 export type BulkStatusChangeProps = {

@@ -47,6 +47,7 @@ function BulkActionBar({
 
   const [bulkDeleteTodo] = useBulkDeleteTodoMutation();
   const [bulkStatusChange] = useBulkStatusChangeMutation();
+  
 
   const handleBulkDelete = async () => {
     if (!selectedTodo.length) {
@@ -94,6 +95,7 @@ function BulkActionBar({
       const bulkStatusUpdatedTodos = await bulkStatusChangePromise;
 
       if (bulkStatusUpdatedTodos) {
+
         dispatch(
           bulkStatusChangeTask({ todos: bulkStatusUpdatedTodos, status })
         );

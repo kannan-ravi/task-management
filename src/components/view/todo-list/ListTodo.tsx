@@ -31,20 +31,18 @@ function ListTodo({
     const { active, over } = event;
     if (!over) return;
 
-    const activeId = active.id as string;
-    const todoId = Number(activeId.split("--")[0]) as number;
-    const oldStatus = activeId.split("--")[1] as TaskStatus;
-    const newStatus = over.id as TaskStatus;
+    const todoId = active.id as number;
+    const status = over.id as TaskStatus;
 
     dispatch(
       updateStatus({
         id: todoId,
-        newStatus: newStatus,
+        status: status,
       })
     );
     try {
       const updatePromise = updateTodoStatus({
-        status: newStatus,
+        status: status,
         id: todoId,
       }).unwrap();
 
@@ -60,7 +58,7 @@ function ListTodo({
         dispatch(
           updateStatus({
             id: todoId,
-            newStatus: oldStatus,
+            status: status,
           })
         );
       }
@@ -68,7 +66,7 @@ function ListTodo({
       dispatch(
         updateStatus({
           id: todoId,
-          newStatus: oldStatus,
+          status: status,
         })
       );
       console.error("Mutation failed:", error);

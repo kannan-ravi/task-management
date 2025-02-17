@@ -22,6 +22,27 @@ export type CreateFileTypeProps = {
   files_url: string[];
 };
 
+export type CreateActivitiesDetailsType = {
+  field: string;
+  new_value: string;
+  old_value: string;
+};
+
+export type CreateActivitiesProps = {
+  task_id: number;
+  action: string;
+  details: CreateActivitiesDetailsType;
+};
+
+export type GetActitvitesTypes = {
+  id: number;
+  task_id: number;
+  action: string;
+  details: CreateActivitiesDetailsType;
+  created_at: string;
+  updated_at: string;
+};
+
 export type EditTodoTypeProps = {
   id: number;
   title: string;

@@ -61,8 +61,8 @@ function BoardTodoCard({ todo, setEditDrawer }: BoardTodoCardProps) {
               Edit
             </div>
             <div
-              className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold text-red-500  lg:text-sm"
-              onClick={() => handleDelete(todo.id, todo.status)}
+              className="lg:flex lg:items-center lg:px-3 lg:py-2 lg:gap-3 font-semibold text-red-500  lg:text-sm cursor-pointer"
+              onClick={() => handleDelete(todo.id)}
             >
               <FaTrashAlt />
               Delete

@@ -3,19 +3,25 @@ import Tiptap from "../Tiptap";
 import { EditTaskType } from "../../../utils/types/types";
 import { AiFillFilePdf, AiFillFileWord } from "react-icons/ai";
 import { FiX } from "react-icons/fi";
-import { useEditTodoMutation } from "../../../services/supabaseApi";
-import { GetTodoTypes } from "../../../utils/types/service-types";
+import {
+  useCreateActivitiesMutation,
+  useEditTodoMutation,
+} from "../../../services/supabaseApi";
+import {
+  CreateActivitiesProps,
+  GetTodoTypes,
+} from "../../../utils/types/service-types";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { editTodoTask } from "../../../features/todo/taskSlice";
 
-type CreateFromProps = {
+type EditFromProps = {
   setEditTask: React.Dispatch<React.SetStateAction<EditTaskType>>;
   editTask: EditTaskType;
   setDrawer: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-function CreateFrom({ setEditTask, editTask, setDrawer }: CreateFromProps) {
+function EditForm({ setEditTask, editTask, setDrawer }: EditFromProps) {
   const dispatch = useDispatch();
   const [content, setContent] = useState<string>(editTask.task.description);
 
@@ -43,7 +49,7 @@ function CreateFrom({ setEditTask, editTask, setDrawer }: CreateFromProps) {
   // };
 
   const [editTodo] = useEditTodoMutation();
-
+  const [createActivities] = useCreateActivitiesMutation();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const updatedTodo: GetTodoTypes = {
@@ -63,6 +69,17 @@ function CreateFrom({ setEditTask, editTask, setDrawer }: CreateFromProps) {
       const updatedTask = await updateTaskPromise;
 
       if (updatedTask) {
+        const activities: CreateActivitiesProps = {
+          task_id: editTask.task.id,
+          action: "edited",
+          details: {
+            field: "",
+            old_value: "",
+            new_value: "",
+          },
+        };
+
+        await createActivities(activities).unwrap();
         dispatch(
           editTodoTask({
             todo: updatedTask,
@@ -172,22 +189,6 @@ function CreateFrom({ setEditTask, editTask, setDrawer }: CreateFromProps) {
               name="attachment"
               id="attachment"
               className="hidden"
-            />
-            <div className="bg-gray-50 border border-gray-400 tracking-wide rounded-lg block w-full text-center py-8 px-1 cursor-pointer mt-2">
-              Drop your files here or{" "}
-              <span className="text-blue-500 underline">Update</span>
-            </div>
-          </label>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label htmlFor="attachment" className="text-sm">
-            <p className="text-sm">Attachment</p>
-            <input
-              type="file"
-              name="attachment"
-              id="attachment"
-              className="hidden"
               // onChange={handleFileUpload}
               accept=".png, .jpg, .jpeg, .pdf, .doc, .docx"
             />
@@ -256,10 +257,10 @@ function CreateFrom({ setEditTask, editTask, setDrawer }: CreateFromProps) {
           cancel
         </button>
         <button className="bg-[#7B1984] text-white px-6 py-2 rounded-2xl uppercase font-medium text-sm cursor-pointer hover:bg-transparent border border-[#7B1984] hover:text-[#7B1984] duration-300">
-          Create
+          update
         </button>
       </div>
     </form>
   );
 }
-export default CreateFrom;
+export default EditForm;

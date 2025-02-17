@@ -9,7 +9,7 @@ export function useDeleteTodo() {
   const dispatch = useDispatch();
   const [deleteTodo] = useDeleteTodoMutation();
 
-  const handleDelete = async (id: number, status: TaskStatus) => {
+  const handleDelete = async (id: number) => {
     if (!id) {
       toast.error("Invalid todo data");
       return;
@@ -27,7 +27,7 @@ export function useDeleteTodo() {
       const deletedTodo = await deleteTodoPromise;
 
       if (deletedTodo) {
-        dispatch(deleteSingleTask({ id: deletedTodo[0].id, status }));
+        dispatch(deleteSingleTask({ id: deletedTodo[0].id }));
       }
     } catch (error) {
       console.error("Mutation failed:", error);

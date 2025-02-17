@@ -1,4 +1,8 @@
-import { GetFilesTypes, GetTodoTypes } from "./service-types";
+import {
+  GetActitvitesTypes,
+  GetFilesTypes,
+  GetTodoTypes,
+} from "./service-types";
 
 export type TaskStatus = "todo" | "in_progress" | "completed";
 
@@ -11,4 +15,5 @@ export type TodoTableData = {
 export type EditTaskType = {
   task: GetTodoTypes;
   files: GetFilesTypes[];
+  activities: GetActitvitesTypes[];
 };

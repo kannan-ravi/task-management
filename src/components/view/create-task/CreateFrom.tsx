@@ -3,10 +3,14 @@ import Tiptap from "../Tiptap";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../store";
 import {
+  useCreateActivitiesMutation,
   useCreateFileMutation,
   useCreateTodoMutation,
 } from "../../../services/supabaseApi";
-import { CreateTodoType } from "../../../utils/types/service-types";
+import {
+  CreateActivitiesProps,
+  CreateTodoType,
+} from "../../../utils/types/service-types";
 import { createNewTask } from "../../../features/todo/taskSlice";
 import toast from "react-hot-toast";
 import { FiX } from "react-icons/fi";
@@ -21,6 +25,7 @@ function CreateFrom({ setDrawer }: CreateFromProps) {
   const { user } = useSelector((state: RootState) => state.auth);
   const [createTodo] = useCreateTodoMutation();
   const [createFile] = useCreateFileMutation();
+  const [createActivities] = useCreateActivitiesMutation();
 
   const dispatch = useDispatch();
 
@@ -109,7 +114,7 @@ function CreateFrom({ setDrawer }: CreateFromProps) {
       });
 
       const createdTask = await createTaskPromise;
-      console.log(createdTask)
+      console.log(createdTask);
       if (createdTask) {
         if (files.length > 0) {
           await toast.promise(
@@ -128,6 +133,18 @@ function CreateFrom({ setDrawer }: CreateFromProps) {
             }
           );
         }
+
+        const activities: CreateActivitiesProps = {
+          task_id: createdTask[0].id,
+          action: "created",
+          details: {
+            field: "",
+            new_value: "",
+            old_value: "",
+          },
+        };
+
+        await createActivities(activities).unwrap();
 
         dispatch(createNewTask(createdTask));
         setDrawer(false);

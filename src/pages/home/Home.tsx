@@ -6,7 +6,10 @@ import ListTodo from "../../components/view/todo-list/ListTodo";
 import BoardTodo from "../../components/view/todo-board/BoardTodo";
 import TaskDrawer from "../../components/view/create-task/TaskDrawer";
 import EditTaskDrawer from "../../components/view/edit-task/TaskDrawer";
-import { GetFilesTypes } from "../../utils/types/service-types";
+import {
+  GetActitvitesTypes,
+  GetFilesTypes,
+} from "../../utils/types/service-types";
 import { EditTaskType } from "../../utils/types/types";
 
 function Home() {
@@ -29,6 +32,7 @@ function Home() {
       updated_at: "",
     },
     files: [] as GetFilesTypes[],
+    activities: [] as GetActitvitesTypes[],
   });
 
   useEffect(() => {
