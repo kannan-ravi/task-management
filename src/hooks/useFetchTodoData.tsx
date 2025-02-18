@@ -21,12 +21,12 @@ function useFetchTodoData() {
   });
 
   useEffect(() => {
-    if (data.length > 0 && JSON.stringify(data) !== JSON.stringify(tasks)) {
+    if (data.length > 0) {
       dispatch(addTask(data));
     } else if (data.length === 0 && tasks.length > 0) {
       dispatch(removeAllTask());
     }
-  }, [data, dispatch, tasks]);
+  }, [data, dispatch]);
 
   return { todos: data, isLoading, refetch };
 }

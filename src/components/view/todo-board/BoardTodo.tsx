@@ -6,21 +6,64 @@ import {
 } from "@dnd-kit/core";
 import TodoSingleBoard from "./TodoSingleBoard";
 import { TABLE_DATA } from "../../../utils/constants/table";
+import { useDispatch } from "react-redux";
+import { EditTaskType, TaskStatus } from "../../../utils/types/types";
+import { updateStatus } from "../../../features/todo/taskSlice";
+import { useUpdateTodoStatusMutation } from "../../../services/supabaseApi";
+import toast from "react-hot-toast";
 
 type BoardTodoProps = {
   setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
   isLoading: boolean;
+  setEditTask: React.Dispatch<React.SetStateAction<EditTaskType>>;
 };
-function BoardTodo({ setEditDrawer, isLoading }: BoardTodoProps) {
-  function handleDragEnd(event: DragEndEvent) {
-    // const { active, over } = event;
+function BoardTodo({ setEditDrawer, isLoading, setEditTask }: BoardTodoProps) {
+  const dispatch = useDispatch();
+  const [updateTodoStatus] = useUpdateTodoStatusMutation();
+  async function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over) return;
 
-    // if (!over) return;
+    const todoId = active.id as number;
+    const status = over.id as TaskStatus;
 
-    // const activeId = active.id as string;
-    // const overId = over.id as Todos["status"];
+    dispatch(
+      updateStatus({
+        id: todoId,
+        status: status,
+      })
+    );
+    try {
+      const updatePromise = updateTodoStatus({
+        status: status,
+        id: todoId,
+      }).unwrap();
 
-    console.log(event);
+      toast.promise(updatePromise, {
+        loading: "Updating...",
+        success: "Updated Successfully...",
+        error: "Error while updating...",
+      });
+
+      const updatedTodo = await updatePromise;
+      if (updatedTodo) {
+      } else {
+        dispatch(
+          updateStatus({
+            id: todoId,
+            status: status,
+          })
+        );
+      }
+    } catch (error) {
+      dispatch(
+        updateStatus({
+          id: todoId,
+          status: status,
+        })
+      );
+      console.error("Mutation failed:", error);
+    }
   }
 
   const sensors = useSensor(PointerSensor, {
@@ -36,6 +79,7 @@ function BoardTodo({ setEditDrawer, isLoading }: BoardTodoProps) {
             key={item.id}
             header={item}
             setEditDrawer={setEditDrawer}
+            setEditTask={setEditTask}
             isLoading={isLoading}
           />
         ))}

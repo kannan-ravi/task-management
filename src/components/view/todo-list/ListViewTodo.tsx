@@ -129,7 +129,7 @@ function ListViewTodo({
 
   return (
     <div
-      className="lg:grid lg:grid-cols-[2fr_1fr_1fr_1fr_1fr] bg-[#F1F1F1]"
+      className="lg:grid lg:grid-cols-[2fr_1fr_1fr_1fr_1fr]"
       ref={setNodeRef}
       {...listeners}
       {...attributes}
@@ -146,10 +146,12 @@ function ListViewTodo({
             todo.status === "completed" ? "text-green-500" : "text-gray-400"
           }`}
         />
-        <MdDragIndicator className="text-[#A7A7A7] text-lg hidden lg:block" />
-        <p onClick={handleEdit} className="cursor-pointer">{todo.title}</p>
+        <MdDragIndicator className="text-[#A7A7A7] text-lg hidden lg:block font-semibold" />
+        <p onClick={handleEdit} className="cursor-pointer">
+          {todo.title}
+        </p>
       </div>
-      <p className="hidden lg:text-sm lg:block lg:self-center">
+      <p className="hidden lg:font-semibold lg:text-sm lg:block lg:self-center lg:tracking-wider">
         {new Date(todo.due_date).toLocaleString("en-GB", {
           year: "numeric",
           month: "2-digit",
@@ -161,7 +163,7 @@ function ListViewTodo({
         id="status-dropdown"
       >
         <p
-          className="lg:bg-[#DDDADD] lg:px-3 lg:py-1 lg:rounded-sm lg:text-sm lg:self-center lg:w-fit cursor-pointer lg:uppercase"
+          className="lg:bg-[#DDDADD] lg:font-semibold lg:px-3 lg:py-1 lg:rounded-sm lg:text-sm lg:self-center lg:w-fit cursor-pointer lg:uppercase lg:tracking-wider"
           onClick={() => setStatusDropdown(!statusDropdown)}
         >
           {todo.status}
@@ -198,7 +200,7 @@ function ListViewTodo({
           </p>
         </div>
       </div>
-      <p className="hidden lg:text-sm lg:block lg:self-center capitalize">
+      <p className="hidden lg:text-sm lg:block lg:self-center lg:font-semibold capitalize lg:tracking-wider">
         {todo.category}
       </p>
 

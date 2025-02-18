@@ -59,7 +59,11 @@ function Home() {
           isLoading={isLoading}
         />
       ) : (
-        <BoardTodo setEditDrawer={setEditDrawer} isLoading={isLoading} />
+        <BoardTodo
+          setEditDrawer={setEditDrawer}
+          setEditTask={setEditTask}
+          isLoading={isLoading}
+        />
       )}
 
       <TaskDrawer setDrawer={setDrawer} drawer={drawer} />

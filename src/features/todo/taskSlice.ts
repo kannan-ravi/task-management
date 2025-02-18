@@ -45,12 +45,11 @@ export const TaskSlice = createSlice({
     ) => {
       const { id, status } = action.payload;
 
-      state.tasks = state.tasks.map((task) => {
-        if (task.id === id) {
-          task.status = status;
+      for (let i = 0; i < state.tasks.length; i++) {
+        if (state.tasks[i].id === id) {
+          state.tasks[i].status = status;
         }
-        return task;
-      });
+      }
     },
 
     editTodoTask: (
@@ -92,6 +91,47 @@ export const TaskSlice = createSlice({
       });
     },
 
+    sortTasks: (
+      state,
+      action: PayloadAction<{ by: string; order: string }>
+    ) => {
+      const { by, order } = action.payload;
+
+      state.tasks = state.tasks.sort((a, b) => {
+        if (by === "due_date") {
+          return order === "asc"
+            ? new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
+            : new Date(b.due_date).getTime() - new Date(a.due_date).getTime();
+        }
+        return 0;
+      });
+    },
+
+    reorderTasks: (
+      state,
+      action: PayloadAction<{
+        fromIndex: number;
+        toIndex: number;
+        status: TaskStatus;
+      }>
+    ) => {
+      const { fromIndex, toIndex, status } = action.payload;
+      const tasks = state.tasks.filter((task) => task.status === status);
+
+      if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return;
+
+      // Swap the tasks within the same status
+      const [movedTask] = tasks.splice(fromIndex, 1);
+      tasks.splice(toIndex, 0, movedTask);
+
+      // Update the state with new ordering
+      state.tasks = state.tasks.map((task) =>
+        task.status === status
+          ? tasks.find((t) => t.id === task.id) || task
+          : task
+      );
+    },
+
     removeAllTask: (state) => {
       state.tasks = [];
     },
@@ -125,6 +165,9 @@ export const {
   deleteSingleTask,
   bulkDeleteTask,
   bulkStatusChangeTask,
+
+  sortTasks,
+  reorderTasks,
 
   changeCategoryFilter,
   changeDueDateFilter,

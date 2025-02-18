@@ -1,5 +1,5 @@
 import { useDroppable } from "@dnd-kit/core";
-import { TodoTableData } from "../../../utils/types/types";
+import { EditTaskType, TodoTableData } from "../../../utils/types/types";
 import BoardTodoCard from "./BoardTodoCard";
 import Loading from "../../ui/Loading";
 import { useSelector } from "react-redux";
@@ -9,11 +9,13 @@ type TodoSingleBoardProps = {
   header: TodoTableData;
   setEditDrawer: React.Dispatch<React.SetStateAction<boolean>>;
   isLoading: boolean;
+  setEditTask: React.Dispatch<React.SetStateAction<EditTaskType>>;
 };
 function TodoSingleBoard({
   header,
   setEditDrawer,
   isLoading,
+  setEditTask,
 }: TodoSingleBoardProps) {
   const { setNodeRef } = useDroppable({
     id: header.id,
@@ -43,6 +45,7 @@ function TodoSingleBoard({
               key={todo.id}
               todo={todo}
               setEditDrawer={setEditDrawer}
+              setEditTask={setEditTask}
             />
           ))
         ) : isLoading ? (
