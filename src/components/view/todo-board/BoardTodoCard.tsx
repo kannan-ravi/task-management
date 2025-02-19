@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import { FaPencil } from "react-icons/fa6";
 import { HiDotsHorizontal } from "react-icons/hi";
@@ -8,6 +8,7 @@ import { useDeleteTodo } from "../../../hooks/useDeleteTodo";
 import toast from "react-hot-toast";
 import { useLazyGetSingleTodoQuery } from "../../../services/supabaseApi";
 import { EditTaskType } from "../../../utils/types/types";
+import useOutsideClick from "../../../hooks/useOutsideClick";
 
 type BoardTodoCardProps = {
   todo: GetTodoTypes;
@@ -22,18 +23,15 @@ function BoardTodoCard({
 }: BoardTodoCardProps) {
   const [cardMoreOptions, setCardMoreOptions] = useState<boolean>(false);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (cardMoreOptions && !target.closest("#card-moreoptions-dropdown")) {
-        setCardMoreOptions(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [cardMoreOptions]);
+  const dropdownValues = [
+    {
+      id: "card-moreoptions-dropdown",
+      state: cardMoreOptions,
+      setState: setCardMoreOptions,
+    },
+  ];
+
+  useOutsideClick(dropdownValues);
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: todo.id,

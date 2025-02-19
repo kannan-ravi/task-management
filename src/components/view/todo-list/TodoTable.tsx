@@ -4,6 +4,7 @@ import type {
   EditTaskType,
   TaskStatus,
   TodoTableData,
+  useOutsideClickProps,
 } from "../../../utils/types/types";
 import { useDroppable } from "@dnd-kit/core";
 import Loading from "../../ui/Loading";
@@ -11,7 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../../store";
 import { FaPlus, FaRegCalendarAlt } from "react-icons/fa";
 import { GoPlus } from "react-icons/go";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
   CreateActivitiesProps,
   CreateTodoType,
@@ -23,6 +24,7 @@ import {
   useCreateTodoMutation,
 } from "../../../services/supabaseApi";
 import { createNewTask } from "../../../features/todo/taskSlice";
+import useOutsideClick from "../../../hooks/useOutsideClick";
 
 type TodoTableprops = {
   header: TodoTableData;
@@ -64,21 +66,16 @@ function TodoTable({
   const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (categoryDropdown && !target.closest("#category-dropdown")) {
-        setCategoryDropdown(false);
-      }
-      if (statusDropdown && !target.closest("#task-dropdown")) {
-        setStatusDropdown(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [categoryDropdown, statusDropdown]);
+  const dropdownValues: useOutsideClickProps[] = [
+    {
+      id: "category-dropdown",
+      state: categoryDropdown,
+      setState: setCategoryDropdown,
+    },
+    { id: "task-dropdown", state: statusDropdown, setState: setStatusDropdown },
+  ];
+
+  useOutsideClick(dropdownValues);
 
   const handleClick = () => {
     if (inputRef.current) {

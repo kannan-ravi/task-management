@@ -1,9 +1,10 @@
 import { IoIosArrowDown } from "react-icons/io";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { changeCategoryFilter } from "../../features/todo/taskSlice";
 import useFetchTodoData from "../../hooks/useFetchTodoData";
+import useOutsideClick from "../../hooks/useOutsideClick";
 
 function CategoryFilter() {
   const { category_filter } = useSelector((state: RootState) => state.task);
@@ -11,18 +12,11 @@ function CategoryFilter() {
   const { refetch } = useFetchTodoData();
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (dropdown && !target.closest("#category-dropdown")) {
-        setDropdown(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [dropdown]);
+  const dropdownValues = [
+    { id: "category-dropdown", state: dropdown, setState: setDropdown },
+  ];
+
+  useOutsideClick(dropdownValues);
 
   const handleChangeCategoryFilter = (category: string) => {
     dispatch(changeCategoryFilter(category));

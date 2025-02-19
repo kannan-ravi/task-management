@@ -2,7 +2,7 @@ import { FaCheckCircle, FaTrashAlt } from "react-icons/fa";
 import Checkbox from "../../ui/Checkbox";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { FaPencil } from "react-icons/fa6";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type {
   CreateActivitiesProps,
   GetTodoTypes,
@@ -19,6 +19,7 @@ import { updateStatus } from "../../../features/todo/taskSlice";
 import toast from "react-hot-toast";
 import { EditTaskType, TaskStatus } from "../../../utils/types/types";
 import { useDeleteTodo } from "../../../hooks/useDeleteTodo";
+import useOutsideClick from "../../../hooks/useOutsideClick";
 
 type ListViewTodoProps = {
   todo: GetTodoTypes;
@@ -37,22 +38,23 @@ function ListViewTodo({
 }: ListViewTodoProps) {
   const [moreOptions, setMoreOptions] = useState<boolean>(false);
   const [statusDropdown, setStatusDropdown] = useState<boolean>(false);
+
+  const dropdownValues = [
+    {
+      id: "more-options-dropdown",
+      state: moreOptions,
+      setState: setMoreOptions,
+    },
+    {
+      id: "status-dropdown",
+      state: statusDropdown,
+      setState: setStatusDropdown,
+    },
+  ];
+
+  useOutsideClick(dropdownValues);
+
   const dispatch = useDispatch();
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (moreOptions && !target.closest("#more-options-dropdown")) {
-        setMoreOptions(false);
-      }
-      if (statusDropdown && !target.closest("#status-dropdown")) {
-        setStatusDropdown(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [moreOptions, statusDropdown]);
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: todo.id + "--" + todo.status,

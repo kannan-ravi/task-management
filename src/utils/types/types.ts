@@ -1,3 +1,4 @@
+import React from "react";
 import {
   GetActitvitesTypes,
   GetFilesTypes,
@@ -16,4 +17,10 @@ export type EditTaskType = {
   task: GetTodoTypes;
   files: GetFilesTypes[];
   activities: GetActitvitesTypes[];
+};
+
+export type useOutsideClickProps = {
+  id: string;
+  state: boolean;
+  setState: React.Dispatch<React.SetStateAction<boolean>>;
 };

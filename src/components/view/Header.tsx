@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Logo from "../../assets/logo/logo.svg";
 import { CiLogout } from "react-icons/ci";
 import { auth } from "../../firebase";
@@ -8,24 +8,23 @@ import { useNavigate } from "react-router";
 import type { RootState } from "../../store";
 import { removeAllFilter, removeAllTask } from "../../features/todo/taskSlice";
 import { supabaseApi } from "../../services/supabaseApi";
+import useOutsideClick from "../../hooks/useOutsideClick";
 
 function Header() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state: RootState) => state.auth);
   const [profileDropdown, setProfileDropdown] = useState<boolean>(false);
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (profileDropdown && !target.closest("#profile-dropdown")) {
-        setProfileDropdown(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [profileDropdown]);
+
+  const dropdownValues = [
+    {
+      id: "profile-dropdown",
+      state: profileDropdown,
+      setState: setProfileDropdown,
+    },
+  ];
+
+  useOutsideClick(dropdownValues);
 
   const handleSignOut = async () => {
     try {

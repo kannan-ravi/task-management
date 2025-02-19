@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaCheckSquare } from "react-icons/fa";
 import { IoCloseSharp } from "react-icons/io5";
 import {
@@ -12,6 +12,7 @@ import {
 } from "../../features/todo/taskSlice";
 import { useDispatch } from "react-redux";
 import { TaskStatus } from "../../utils/types/types";
+import useOutsideClick from "../../hooks/useOutsideClick";
 
 type BulkActionBarProps = {
   showBulkAction: boolean;
@@ -28,22 +29,15 @@ function BulkActionBar({
   const [builkStatusDropdown, setBuilkStatusDropdown] =
     useState<boolean>(false);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
+  const dropdownValues = [
+    {
+      id: "bulkaction-status-dropdown",
+      state: builkStatusDropdown,
+      setState: setBuilkStatusDropdown,
+    },
+  ];
 
-      if (
-        builkStatusDropdown &&
-        !target.closest("#bulkaction-status-dropdown")
-      ) {
-        setBuilkStatusDropdown(false);
-      }
-    };
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [builkStatusDropdown]);
+  useOutsideClick(dropdownValues);
 
   const [bulkDeleteTodo] = useBulkDeleteTodoMutation();
   const [bulkStatusChange] = useBulkStatusChangeMutation();
