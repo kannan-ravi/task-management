@@ -81,7 +81,7 @@ function EditTaskDrawer({
                 />
                 <div className="mt-6 bg-gray-100">
                   <h2 className="py-2 px-3 bg-white">Activity</h2>
-                  <ul className="py-2 px-3 flex flex-col gap-2">
+                  <ul className="py-2 px-3 flex flex-col gap-2 overflow-hidden h-100 max-h-[calc(100%-80px)]">
                     {editTask.activities.map((activity) => (
                       <li
                         className="flex items-center justify-between gap-2 py-1"
@@ -113,7 +113,7 @@ function EditTaskDrawer({
             ) : showActivity ? (
               <div className="mt-6 bg-gray-100">
                 <h2 className="py-2 px-3 bg-white">Activity</h2>
-                <ul className="py-2 px-3 flex flex-col gap-2">
+                <ul className="pt-2 pb-7 px-3 flex flex-col gap-2  overflow-y-auto lg:overflow-y-scroll h-100">
                   {editTask.activities.map((activity) => (
                     <li
                       className="flex items-center justify-between gap-2 px-1 py-1"

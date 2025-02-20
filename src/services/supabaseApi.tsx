@@ -6,6 +6,7 @@ import {
   CreateFileType,
   CreateFileTypeProps,
   CreateTodoType,
+  EditFileUrlProps,
   EditTodoTypeProps,
   GetActitvitesTypes,
   GetFilesTypes,
@@ -131,6 +132,22 @@ export const supabaseApi = createApi({
       },
     }),
 
+    updateFileUrl: builder.mutation<CreateFileType, EditFileUrlProps>({
+      queryFn: async ({ id, files_url }) => {
+        const { data, error } = await supabase
+          .from("files")
+          .update({ files_url })
+          .eq("id", id)
+          .select("*")
+          .single();
+
+        if (error) {
+          return { error: { message: error.message } };
+        }
+
+        return { data };
+      },
+    }),
     updateTodoStatus: builder.mutation<GetTodoTypes, UpdateStatusPropsTypes>({
       queryFn: async ({ status, id }) => {
         const { data, error } = await supabase
@@ -221,6 +238,7 @@ export const {
   useCreateActivitiesMutation,
   useCreateFileMutation,
   useUpdateTodoStatusMutation,
+  useUpdateFileUrlMutation,
   useDeleteTodoMutation,
   useEditTodoMutation,
   useBulkDeleteTodoMutation,

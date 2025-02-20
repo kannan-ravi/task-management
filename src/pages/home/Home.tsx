@@ -12,6 +12,7 @@ import {
 } from "../../utils/types/service-types";
 import { EditTaskType } from "../../utils/types/types";
 import useFetchTodoData from "../../hooks/useFetchTodoData";
+import useWindowSize from "../../hooks/useWindowSize";
 
 function Home() {
   const [showBulkAction, setShowBulkAction] = useState<boolean>(false);
@@ -19,6 +20,8 @@ function Home() {
   const [drawer, setDrawer] = useState<boolean>(false);
   const [editDrawer, setEditDrawer] = useState<boolean>(false);
   const [view, setView] = useState<string>("list");
+  const windowSize = useWindowSize();
+  const isDesktop = windowSize.width >= 1024;
 
   const [editTask, setEditTask] = useState<EditTaskType>({
     task: {
@@ -44,6 +47,12 @@ function Home() {
     }
   }, [selectedTodo.length]);
 
+  useEffect(() => {
+    if (!isDesktop) {
+      setView("list");
+    }
+  }, [isDesktop]);
+
   const { isLoading } = useFetchTodoData();
   return (
     <div>
@@ -59,11 +68,13 @@ function Home() {
           isLoading={isLoading}
         />
       ) : (
-        <BoardTodo
-          setEditDrawer={setEditDrawer}
-          setEditTask={setEditTask}
-          isLoading={isLoading}
-        />
+        isDesktop && (
+          <BoardTodo
+            setEditDrawer={setEditDrawer}
+            setEditTask={setEditTask}
+            isLoading={isLoading}
+          />
+        )
       )}
 
       <TaskDrawer setDrawer={setDrawer} drawer={drawer} />

@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Tiptap from "../Tiptap";
 import { EditTaskType } from "../../../utils/types/types";
 import { AiFillFilePdf, AiFillFileWord } from "react-icons/ai";
 import { FiX } from "react-icons/fi";
 import {
   useCreateActivitiesMutation,
+  useCreateFileMutation,
   useEditTodoMutation,
+  useUpdateFileUrlMutation,
 } from "../../../services/supabaseApi";
 import {
   CreateActivitiesProps,
@@ -14,6 +16,7 @@ import {
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
 import { editTodoTask } from "../../../features/todo/taskSlice";
+import supabase from "../../../supabase";
 
 type EditFromProps = {
   setEditTask: React.Dispatch<React.SetStateAction<EditTaskType>>;
@@ -24,7 +27,22 @@ type EditFromProps = {
 function EditForm({ setEditTask, editTask, setDrawer }: EditFromProps) {
   const dispatch = useDispatch();
   const [content, setContent] = useState<string>(editTask.task.description);
+  const [files, setFiles] = useState<File[]>([]);
+  const liveFilesCopy = useMemo(
+    () => editTask.files[0]?.files_url,
+    [editTask.files]
+  );
 
+  const [filesEditable, setFilesEditable] = useState(editTask.files);
+
+  useEffect(() => {
+    setFilesEditable(editTask.files);
+  }, [editTask.files]);
+
+  const [editTodo] = useEditTodoMutation();
+  const [createActivities] = useCreateActivitiesMutation();
+  const [updateFileUrl] = useUpdateFileUrlMutation();
+  const [createFile] = useCreateFileMutation();
   const handleOnChange = (
     e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
   ) => {
@@ -44,12 +62,59 @@ function EditForm({ setEditTask, editTask, setDrawer }: EditFromProps) {
     return url.split(".").pop() || "";
   };
 
-  // const removeFile = (index: number) => {
-  //   setFiles(files.filter((_, i) => i !== index));
-  // };
+  const removeFile = (index: number) => {
+    setFiles(files.filter((_, i) => i !== index));
+  };
+  // console.log(filesEditable)
+  const handleRemoveLiveFiles = (url: string) => {
+    setFilesEditable((prevFiles) =>
+      prevFiles.map((file) => ({
+        ...file,
+        files_url: file.files_url.filter((fileUrl) => fileUrl !== url),
+      }))
+    );
+  };
 
-  const [editTodo] = useEditTodoMutation();
-  const [createActivities] = useCreateActivitiesMutation();
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const uploadedFiles = Array.from(event.target.files);
+      setFiles((prevFiles) => [...prevFiles, ...uploadedFiles]);
+
+      event.target.value = "";
+    }
+  };
+
+  const uploadFiles = async (files: File[]): Promise<string[]> => {
+    const bucketName = import.meta.env.VITE_SUPABASE_BUCKET_NAME;
+    const uploadedUrls: string[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileNumber = i + 1;
+      const filePath = `uploads/${Date.now()}-${file.name}`;
+
+      const { error } = await supabase.storage
+        .from(bucketName)
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (error) {
+        console.error(`Upload Error ${fileNumber}:`, error.message);
+        toast.error(`Failed to upload file ${fileNumber}`);
+        continue;
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from(bucketName)
+        .getPublicUrl(filePath);
+      uploadedUrls.push(publicUrlData.publicUrl);
+    }
+
+    return uploadedUrls;
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const updatedTodo: GetTodoTypes = {
@@ -68,7 +133,60 @@ function EditForm({ setEditTask, editTask, setDrawer }: EditFromProps) {
       });
       const updatedTask = await updateTaskPromise;
 
+      const liveFiles = filesEditable.length > 0 && filesEditable.flatMap((file) => file.files_url);
+      const missingFiles = filesEditable.length > 0 && liveFiles && liveFiles.length > 0 && liveFilesCopy.filter(
+        (url) => !liveFiles.includes(url)
+      );
+      const nonMissingFiles = liveFiles && liveFiles.length > 0 && liveFiles.filter((url) =>
+        liveFilesCopy.includes(url)
+      );
+
       if (updatedTask) {
+        if (files.length > 0) {
+          await toast.promise(
+            async () => {
+              const uploadedUrls = await uploadFiles(files);
+              const editFiles =
+                filesEditable.length > 0
+                  ? [...filesEditable[0].files_url, ...uploadedUrls]
+                  : [...uploadedUrls];
+
+              if (editTask.files.length > 0) {
+                const uploadedFilesPromise = updateFileUrl({
+                  id: editTask.files[0].id,
+                  files_url: editFiles,
+                }).unwrap();
+                await uploadedFilesPromise;
+              } else {
+                const uploadedFilesPromise = createFile({
+                  task_id: editTask.task.id,
+                  files_url: editFiles,
+                }).unwrap();
+                await uploadedFilesPromise;
+              }
+            },
+            {
+              loading: "Uploading files...",
+              success: "Files Uploaded!",
+              error: "Error uploading files",
+            }
+          );
+        } else if (missingFiles && missingFiles.length > 0) {
+          await toast.promise(
+            async () => {
+              const uploadedFilesPromise = updateFileUrl({
+                id: editTask.files[0].id,
+                files_url: nonMissingFiles,
+              }).unwrap();
+              await uploadedFilesPromise;
+            },
+            {
+              loading: "Uploading files...",
+              success: "Files Uploaded!",
+              error: "Error uploading files",
+            }
+          );
+        }
         const activities: CreateActivitiesProps = {
           task_id: editTask.task.id,
           action: "edited",
@@ -86,10 +204,13 @@ function EditForm({ setEditTask, editTask, setDrawer }: EditFromProps) {
             id: updatedTask.id,
           })
         );
+        setFiles([]);
 
         setDrawer(false);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log("Error: ", error);
+    }
   };
 
   return (
@@ -182,14 +303,14 @@ function EditForm({ setEditTask, editTask, setDrawer }: EditFromProps) {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="attachment" className="text-sm">
+          <label htmlFor="edit-file" className="text-sm">
             <p className="text-sm">Attachment</p>
             <input
               type="file"
-              name="attachment"
-              id="attachment"
+              name="edit-file"
+              id="edit-file"
               className="hidden"
-              // onChange={handleFileUpload}
+              onChange={handleFileUpload}
               accept=".png, .jpg, .jpeg, .pdf, .doc, .docx"
             />
             <div className="bg-gray-50 border border-gray-400 tracking-wide rounded-lg block w-full text-center py-8 px-1 cursor-pointer mt-2">
@@ -198,10 +319,10 @@ function EditForm({ setEditTask, editTask, setDrawer }: EditFromProps) {
             </div>
           </label>
 
-          {editTask.files.length > 0 && (
-            <div className="mt-2 p-2 rounded-lg bg-white">
-              <ul className="mt-2 flex flex-wrap gap-2">
-                {editTask.files[0].files_url.map((file, index) => {
+          <div className="mt-2 p-2 rounded-lg bg-white">
+            <ul className="mt-2 flex flex-wrap gap-2">
+              {filesEditable.length > 0 &&
+                filesEditable[0].files_url.map((file, index) => {
                   const extension = getFileExtension(file);
 
                   const isImage =
@@ -239,16 +360,59 @@ function EditForm({ setEditTask, editTask, setDrawer }: EditFromProps) {
                       <button
                         type="button"
                         className="absolute top-2 right-0 bg-gray-100 rounded-full p-0.5"
-                        // onClick={() => removeFile(index)}
+                        onClick={() => handleRemoveLiveFiles(file)}
                       >
                         <FiX className="text-sm" />
                       </button>
                     </li>
                   );
                 })}
-              </ul>
-            </div>
-          )}
+              {files.length > 0 &&
+                files.map((file, index) => {
+                  const isImage = file.type.includes("image");
+                  const isPdf = file.type.includes("pdf");
+                  const isDoc =
+                    file.type.includes("msword") ||
+                    file.type.includes("officeOpenXML") ||
+                    file.type.includes("docx") ||
+                    file.type.includes("doc");
+                  return (
+                    <li
+                      key={index}
+                      className="flex justify-between items-center mt-1 relative w-fit"
+                    >
+                      <div className="flex items-center flex-col gap-2">
+                        {isImage && (
+                          <img
+                            src={URL.createObjectURL(file)}
+                            alt="PDF file"
+                            className="w-24 h-24 rounded object-cover"
+                          />
+                        )}
+
+                        {isPdf && (
+                          <div className="w-24 h-24 flex items-center justify-center">
+                            <AiFillFilePdf className="text-red-500 text-4xl" />
+                          </div>
+                        )}
+                        {isDoc && (
+                          <div className="w-24 h-24 flex items-center justify-center">
+                            <AiFillFileWord className="text-blue-500 mr-2 text-4xl" />
+                          </div>
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        className="absolute top-2 right-0 bg-gray-100 rounded-full p-0.5"
+                        onClick={() => removeFile(index)}
+                      >
+                        <FiX className="text-sm" />
+                      </button>
+                    </li>
+                  );
+                })}
+            </ul>
+          </div>
         </div>
       </div>
 

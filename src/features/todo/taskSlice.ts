@@ -107,28 +107,20 @@ export const TaskSlice = createSlice({
       });
     },
 
-    reorderTasks: (
-      state,
-      action: PayloadAction<{
-        fromIndex: number;
-        toIndex: number;
-        status: TaskStatus;
-      }>
-    ) => {
-      const { fromIndex, toIndex, status } = action.payload;
-      const tasks = state.tasks.filter((task) => task.status === status);
+    reorderTasks: (state, action) => {
+      const { taskId, status, newIndex } = action.payload;
+      const tasks = state.tasks.filter((t) => t.status === status);
+      const oldIndex = tasks.findIndex((t) => t.id === taskId);
 
-      if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return;
+      if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+        const [movedTask] = tasks.splice(oldIndex, 1);
+        tasks.splice(newIndex, 0, movedTask);
+      }
 
-      // Swap the tasks within the same status
-      const [movedTask] = tasks.splice(fromIndex, 1);
-      tasks.splice(toIndex, 0, movedTask);
-
-      // Update the state with new ordering
-      state.tasks = state.tasks.map((task) =>
-        task.status === status
-          ? tasks.find((t) => t.id === task.id) || task
-          : task
+      state.tasks = state.tasks.map((t) =>
+        tasks.some((reorderedTask) => reorderedTask.id === t.id)
+          ? tasks.find((r) => r.id === t.id)!
+          : t
       );
     },
 

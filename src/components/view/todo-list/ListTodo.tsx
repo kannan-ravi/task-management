@@ -13,7 +13,7 @@ import {
 } from "../../../services/supabaseApi";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
-import { sortTasks, updateStatus } from "../../../features/todo/taskSlice";
+import { reorderTasks, sortTasks, updateStatus } from "../../../features/todo/taskSlice";
 import { CreateActivitiesProps } from "../../../utils/types/service-types";
 import { FaSort } from "react-icons/fa";
 import { useState } from "react";
@@ -44,6 +44,10 @@ function ListTodo({
     const todoId = Number(activeId.split("--")[0]) as number;
     const oldStatus = activeId.split("--")[1] as TaskStatus;
     const newStatus = over.id as TaskStatus;
+
+    if(oldStatus === newStatus) {
+      dispatch(reorderTasks({ taskId: todoId, status: newStatus, newIndex: over.data.current?.sortable.index }));
+    }
 
     dispatch(
       updateStatus({

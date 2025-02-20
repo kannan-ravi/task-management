@@ -52,6 +52,11 @@ export type EditTodoTypeProps = {
   status: TaskStatus;
 };
 
+export type EditFileUrlProps = {
+  id: number;
+  files_url: string[];
+};
+
 export type GetTodoTypes = {
   id: number;
   user_id: string;
