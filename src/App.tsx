@@ -7,10 +7,10 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 function App() {
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false}></Toaster>
+      <Toaster position="top-right" reverseOrder={false} />
       <Routes>
-        <Route path="/" element={<ProtectedRoute children={<Home />} />}>
-          <Route index element={<Home />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<Home />} />
         </Route>
         <Route path="/login" element={<Login />} />
       </Routes>

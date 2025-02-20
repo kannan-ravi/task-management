@@ -3,7 +3,6 @@ import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import { useDeleteTodoMutation } from "../services/supabaseApi";
 import { deleteSingleTask } from "../features/todo/taskSlice";
-import { TaskStatus } from "../utils/types/types";
 
 export function useDeleteTodo() {
   const dispatch = useDispatch();

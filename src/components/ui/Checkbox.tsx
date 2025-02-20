@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { GetTodoTypes } from "../../utils/types/service-types";
 
 type CheckboxProps = {

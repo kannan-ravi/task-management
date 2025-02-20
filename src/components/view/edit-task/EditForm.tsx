@@ -115,55 +115,150 @@ function EditForm({ setEditTask, editTask, setDrawer }: EditFromProps) {
     return uploadedUrls;
   };
 
+  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   const updatedTodo: GetTodoTypes = {
+  //     ...editTask.task,
+  //     description: content,
+  //   };
+  //   const { id, title, description, category, due_date, status } = updatedTodo;
+  //   const editedTodo = { id, title, description, category, due_date, status };
+
+  //   try {
+  //     const updateTaskPromise = editTodo(editedTodo).unwrap();
+  //     toast.promise(updateTaskPromise, {
+  //       loading: "Updating task...",
+  //       success: "Task updated successfully!",
+  //       error: "Error updating task",
+  //     });
+  //     const updatedTask = await updateTaskPromise;
+
+  //     const liveFiles = filesEditable.flatMap((file) => file.files_url);
+  //     const missingFiles = liveFiles.length > 0 && liveFilesCopy.filter(
+  //       (url) => !liveFiles.includes(url)
+  //     );
+  //     const nonMissingFiles = liveFiles.filter((url) =>
+  //       liveFilesCopy.includes(url)
+  //     );
+
+  //     if (updatedTask) {
+  //       if (files.length > 0) {
+  //         await toast.promise(
+  //           async () => {
+  //             const uploadedUrls = await uploadFiles(files);
+  //             const editFiles =
+  //               filesEditable.length > 0
+  //                 ? [...filesEditable[0].files_url, ...uploadedUrls]
+  //                 : [...uploadedUrls];
+
+  //             if (editTask.files.length > 0) {
+  //               const uploadedFilesPromise = updateFileUrl({
+  //                 id: editTask.files[0].id,
+  //                 files_url: editFiles,
+  //               }).unwrap();
+  //               await uploadedFilesPromise;
+  //             } else {
+  //               const uploadedFilesPromise = createFile({
+  //                 task_id: editTask.task.id,
+  //                 files_url: editFiles,
+  //               }).unwrap();
+  //               await uploadedFilesPromise;
+  //             }
+  //           },
+  //           {
+  //             loading: "Uploading files...",
+  //             success: "Files Uploaded!",
+  //             error: "Error uploading files",
+  //           }
+  //         );
+  //       } else if (missingFiles && missingFiles.length > 0) {
+  //         await toast.promise(
+  //           async () => {
+  //             const uploadedFilesPromise = updateFileUrl({
+  //               id: editTask.files[0].id,
+  //               files_url: nonMissingFiles,
+  //             }).unwrap();
+  //             await uploadedFilesPromise;
+  //           },
+  //           {
+  //             loading: "Uploading files...",
+  //             success: "Files Uploaded!",
+  //             error: "Error uploading files",
+  //           }
+  //         );
+  //       }
+  //       const activities: CreateActivitiesProps = {
+  //         task_id: editTask.task.id,
+  //         action: "edited",
+  //         details: {
+  //           field: "",
+  //           old_value: "",
+  //           new_value: "",
+  //         },
+  //       };
+
+  //       await createActivities(activities).unwrap();
+  //       dispatch(
+  //         editTodoTask({
+  //           todo: updatedTask,
+  //           id: updatedTask.id,
+  //         })
+  //       );
+  //       setFiles([]);
+
+  //       setDrawer(false);
+  //     }
+  //   } catch (error) {
+  //     console.log("Error: ", error);
+  //   }
+  // };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const updatedTodo: GetTodoTypes = {
-      ...editTask.task,
-      description: content,
-    };
-    const { id, title, description, category, due_date, status } = updatedTodo;
-    const editedTodo = { id, title, description, category, due_date, status };
-
     try {
+      const updatedTodo: GetTodoTypes = {
+        ...editTask.task,
+        description: content,
+      };
+      const { id, title, description, category, due_date, status } = updatedTodo;
+      const editedTodo = { id, title, description, category, due_date, status };
+  
+      // Awaiting the promise before passing it to toast
       const updateTaskPromise = editTodo(editedTodo).unwrap();
       toast.promise(updateTaskPromise, {
         loading: "Updating task...",
         success: "Task updated successfully!",
         error: "Error updating task",
       });
+  
       const updatedTask = await updateTaskPromise;
-
-      const liveFiles = filesEditable.length > 0 && filesEditable.flatMap((file) => file.files_url);
-      const missingFiles = filesEditable.length > 0 && liveFiles && liveFiles.length > 0 && liveFilesCopy.filter(
-        (url) => !liveFiles.includes(url)
-      );
-      const nonMissingFiles = liveFiles && liveFiles.length > 0 && liveFiles.filter((url) =>
-        liveFilesCopy.includes(url)
-      );
-
+  
       if (updatedTask) {
+        const liveFiles = filesEditable.flatMap((file) => file.files_url);
+        const missingFiles = liveFilesCopy.filter((url) => !liveFiles.includes(url));
+        const nonMissingFiles = liveFiles.filter((url) => liveFilesCopy.includes(url));
+  
         if (files.length > 0) {
           await toast.promise(
             async () => {
               const uploadedUrls = await uploadFiles(files);
-              const editFiles =
+              const newFileUrls =
                 filesEditable.length > 0
                   ? [...filesEditable[0].files_url, ...uploadedUrls]
                   : [...uploadedUrls];
-
-              if (editTask.files.length > 0) {
-                const uploadedFilesPromise = updateFileUrl({
-                  id: editTask.files[0].id,
-                  files_url: editFiles,
-                }).unwrap();
-                await uploadedFilesPromise;
-              } else {
-                const uploadedFilesPromise = createFile({
-                  task_id: editTask.task.id,
-                  files_url: editFiles,
-                }).unwrap();
-                await uploadedFilesPromise;
-              }
+  
+              const uploadedFilesPromise =
+                editTask.files.length > 0
+                  ? updateFileUrl({
+                      id: editTask.files[0].id,
+                      files_url: newFileUrls,
+                    }).unwrap()
+                  : createFile({
+                      task_id: editTask.task.id,
+                      files_url: newFileUrls,
+                    }).unwrap();
+  
+              await uploadedFilesPromise;
             },
             {
               loading: "Uploading files...",
@@ -171,7 +266,7 @@ function EditForm({ setEditTask, editTask, setDrawer }: EditFromProps) {
               error: "Error uploading files",
             }
           );
-        } else if (missingFiles && missingFiles.length > 0) {
+        } else if (missingFiles.length > 0) {
           await toast.promise(
             async () => {
               const uploadedFilesPromise = updateFileUrl({
@@ -181,12 +276,14 @@ function EditForm({ setEditTask, editTask, setDrawer }: EditFromProps) {
               await uploadedFilesPromise;
             },
             {
-              loading: "Uploading files...",
-              success: "Files Uploaded!",
-              error: "Error uploading files",
+              loading: "Updating file references...",
+              success: "File references updated!",
+              error: "Error updating file references",
             }
           );
         }
+  
+        // Creating activity log
         const activities: CreateActivitiesProps = {
           task_id: editTask.task.id,
           action: "edited",
@@ -196,23 +293,25 @@ function EditForm({ setEditTask, editTask, setDrawer }: EditFromProps) {
             new_value: "",
           },
         };
-
         await createActivities(activities).unwrap();
+  
+        // Dispatch state update
         dispatch(
           editTodoTask({
             todo: updatedTask,
             id: updatedTask.id,
           })
         );
+  
+        // Reset states
         setFiles([]);
-
         setDrawer(false);
       }
     } catch (error) {
-      console.log("Error: ", error);
+      console.error("Error:", error);
     }
   };
-
+  
   return (
     <form className="mt-6" onSubmit={handleSubmit}>
       <div className="mt-4 flex flex-col gap-5 overflow-scroll max-h-[calc(100vh-202px)] px-3 pb-4 lg:p-5 webkit-scrollbar-none lg:max-h-[calc(100vh-200px)]">
