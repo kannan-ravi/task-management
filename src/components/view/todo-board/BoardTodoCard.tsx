@@ -99,7 +99,13 @@ function BoardTodoCard({
       </div>
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500 capitalize">{todo.category}</p>
-        <p className="text-sm text-gray-500">{todo.due_date}</p>
+        <p className="text-sm text-gray-500">
+          {new Date(todo.due_date).toLocaleString("en-GB", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          })}
+        </p>
       </div>
     </div>
   );
